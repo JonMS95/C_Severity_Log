@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <!-- Directory structure -->
+    <Directories>
+        <Dynamic_libraries/>
+        <API>
+            <Header_files/>
+            <Dynamic_libraries/>
+        </API>
+    </Directories>
+    <!-- API files -->
+    <API>
+        <Header_files
+            HeaderPath="Source_files/SeverityLog_api.h"
+        />
+        <Dynamic_libraries
+            SOPath="Dynamic_libraries/libSeverityLog.so"
+        />
+    </API>
+</config>
