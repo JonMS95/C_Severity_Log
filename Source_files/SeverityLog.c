@@ -2,6 +2,10 @@
 #include <stdarg.h>
 #include "SeverityLog.h"
 
+/////////////////////////////////////////////////////////////
+/// @brief Changes log color depending on the severity level.
+/// @param severity Severity level (ERR, INF, WNG)
+/////////////////////////////////////////////////////////////
 static void ChangeSeverityColor(int severity)
 {
     int color = SVRTY_CLR_BASE + severity;
@@ -9,11 +13,18 @@ static void ChangeSeverityColor(int severity)
     printf(SVRTY_CHG_CLR, color);
 }
 
+///////////////////////////////////////
+/// @brief Resets log color to default.
+///////////////////////////////////////
 static void ResetSeverityColor()
 {
     printf(SVRTY_RST_CLR);
 }
 
+///////////////////////////////////////////////////////////////
+/// @brief Prints a string at the beginning of the log message.
+/// @param severity Severity level (ERR, INF, WNG)
+///////////////////////////////////////////////////////////////
 static void PrintSeverityLevel(int severity)
 {
     switch(severity)
@@ -41,6 +52,13 @@ static void PrintSeverityLevel(int severity)
     }
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////
+/// @brief Prints a log with different color and initial string depending on the severity level.
+/// @param severity Severity level (ERR, INF, WNG).
+/// @param format Formatted string. Same as what can be used with printf.
+/// @param  Variable Variable number of arguments. Data that is meant to be formatted and printed.
+/// @return < 0 if any error hapenned, number of characters written to stream otherwise.
+//////////////////////////////////////////////////////////////////////////////////////////////////
 int SeverityLog(int severity, const char* format, ...)
 {
     va_list args;
