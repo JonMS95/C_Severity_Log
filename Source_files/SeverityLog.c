@@ -76,12 +76,3 @@ int SeverityLog(int severity, const char* format, ...)
 
     return done;
 }
-
-int main()
-{
-    SeverityLog(SVRTY_LVL_INF, "Hello, my name is \"%s\"\r\n", "Jon");
-    SeverityLog(SVRTY_LVL_ERR, "I'm %d years old\r\n", 27);
-    SeverityLog(SVRTY_LVL_WNG, "Soon, I will become %.2f.\r\n", 28.1);
-    
-    return 0;
-}
