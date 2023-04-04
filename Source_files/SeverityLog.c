@@ -47,6 +47,12 @@ static void PrintSeverityLevel(int severity)
         }
         break;
 
+        case SVRTY_LVL_DBG:
+        {
+            printf(SVRTY_STR_DBG);
+        }
+        break;
+
         default:
         break;
     }

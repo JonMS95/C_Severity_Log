@@ -15,5 +15,6 @@ static void PrintSeverityLevel(int severity);
 #define SVRTY_STR_ERR   "[ERR] "
 #define SVRTY_STR_INF   "[INF] "
 #define SVRTY_STR_WNG   "[WNG] "
+#define SVRTY_STR_DBG   "[DBG] "
 
 #endif

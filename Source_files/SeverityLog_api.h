@@ -4,6 +4,7 @@
 #define SVRTY_LVL_ERR   1
 #define SVRTY_LVL_INF   2
 #define SVRTY_LVL_WNG   3
+#define SVRTY_LVL_DBG   4   
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Prints a log with different color and initial string depending on the severity level.
