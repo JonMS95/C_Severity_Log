@@ -60,11 +60,20 @@ static void PrintSeverityLevel(int severity)
     }
 }
 
+/////////////////////////////////////////////////////
+/// @brief Sets severity log mask to the input value.
+/// @param mask Target severity log mask.
+/////////////////////////////////////////////////////
 void SetSeverityLogMask(int mask)
 {
     severity_log_mask = mask;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/// @brief Checks the current severity log mask.  
+/// @param severity Target message severity level.
+/// @return SVRTY_LOG_SUCCESS if the severity level is allowed, SVRTY_LOG_WNG_SILENT_LVL otherwise.
+///////////////////////////////////////////////////////////////////////////////////////////////////
 int CheckSeverityLogMask(int severity)
 {
     int bit_to_check = (1 << (severity - 1));
