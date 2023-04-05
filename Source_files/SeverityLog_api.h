@@ -11,8 +11,14 @@
 #define SVRTY_LOG_MASK_INF  0b0010
 #define SVRTY_LOG_MASK_WNG  0b0100
 #define SVRTY_LOG_MASK_DBG  0b1000
-#define SVRTY_LOG_MASK_EIW  0b0111 // EIW stands for ERR, INF, W
+#define SVRTY_LOG_MASK_EIW  0b0111 // EIW stands for ERR, INF, WNG
 #define SVRTY_LOG_MASK_ALL  0b1111
+
+/////////////////////////////////////////////////////
+/// @brief Sets severity log mask to the input value.
+/// @param mask Target severity log mask.
+/////////////////////////////////////////////////////
+void SetSeverityLogMask(int mask);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Prints a log with different color and initial string depending on the severity level.
