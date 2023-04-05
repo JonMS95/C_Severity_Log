@@ -11,6 +11,7 @@
 #define SVRTY_LOG_MASK_INF  0b0010
 #define SVRTY_LOG_MASK_WNG  0b0100
 #define SVRTY_LOG_MASK_DBG  0b1000
+#define SVRTY_LOG_MASK_EIW  0b0111 // EIW stands for ERR, INF, W
 #define SVRTY_LOG_MASK_ALL  0b1111
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
