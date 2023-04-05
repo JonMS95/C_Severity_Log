@@ -2,7 +2,7 @@
 #include <stdarg.h>
 #include "SeverityLog.h"
 
-static int severity_log_mask = 0b0000;
+static int severity_log_mask = SVRTY_LOG_MASK_EIW;
 
 /////////////////////////////////////////////////////////////
 /// @brief Changes log color depending on the severity level.
