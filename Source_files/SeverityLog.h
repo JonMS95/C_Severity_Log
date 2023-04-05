@@ -17,4 +17,7 @@ static void PrintSeverityLevel(int severity);
 #define SVRTY_STR_WNG   "[WNG] "
 #define SVRTY_STR_DBG   "[DBG] "
 
+#define SVRTY_LOG_SUCCESS           0
+#define SVRTY_LOG_WNG_SILENT_LVL    -1
+
 #endif
