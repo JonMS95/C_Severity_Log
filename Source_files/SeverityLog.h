@@ -3,10 +3,6 @@
 
 #include "SeverityLog_api.h"
 
-static void ChangeSeverityColor(int severity);
-static void ResetSeverityColor();
-static void PrintSeverityLevel(int severity);
-
 #define SVRTY_CLR_BASE  30 // Black color.
 
 #define SVRTY_CHG_CLR   "\033[0;%dm"
@@ -19,5 +15,10 @@ static void PrintSeverityLevel(int severity);
 
 #define SVRTY_LOG_SUCCESS           0
 #define SVRTY_LOG_WNG_SILENT_LVL    -1
+
+static void ChangeSeverityColor(int severity);
+static void ResetSeverityColor();
+static void PrintSeverityLevel(int severity);
+static int CheckSeverityLogMask(int severity);
 
 #endif
