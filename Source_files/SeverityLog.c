@@ -74,7 +74,7 @@ void SetSeverityLogMask(int mask)
 /// @param severity Target message severity level.
 /// @return SVRTY_LOG_SUCCESS if the severity level is allowed, SVRTY_LOG_WNG_SILENT_LVL otherwise.
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-int CheckSeverityLogMask(int severity)
+static int CheckSeverityLogMask(int severity)
 {
     int bit_to_check = (1 << (severity - 1));
     if( (severity_log_mask & bit_to_check) != 0)
