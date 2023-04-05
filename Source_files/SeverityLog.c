@@ -67,8 +67,8 @@ void SetSeverityLogMask(int mask)
 
 int CheckSeverityLogMask(int severity)
 {
-    int bit_to_check = (1 << (severity -1));
-    if( (severity_log_mask &&  bit_to_check) != 0)
+    int bit_to_check = (1 << (severity - 1));
+    if( (severity_log_mask & bit_to_check) != 0)
     {
         return SVRTY_LOG_SUCCESS;
     }
