@@ -2,6 +2,8 @@
 #include <stdarg.h>
 #include "SeverityLog.h"
 
+static int severity_log_mask = 0b0000;
+
 /////////////////////////////////////////////////////////////
 /// @brief Changes log color depending on the severity level.
 /// @param severity Severity level (ERR, INF, WNG)
@@ -58,6 +60,22 @@ static void PrintSeverityLevel(int severity)
     }
 }
 
+void SetSeverityLogMask(int mask)
+{
+    severity_log_mask = mask;
+}
+
+int CheckSeverityLogMask(int severity)
+{
+    int bit_to_check = (1 << (severity -1));
+    if( (severity_log_mask &&  bit_to_check) != 0)
+    {
+        return SVRTY_LOG_SUCCESS;
+    }
+
+    return SVRTY_LOG_WNG_SILENT_LVL;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Prints a log with different color and initial string depending on the severity level.
 /// @param severity Severity level (ERR, INF, WNG).
@@ -67,6 +85,13 @@ static void PrintSeverityLevel(int severity)
 //////////////////////////////////////////////////////////////////////////////////////////////////
 int SeverityLog(int severity, const char* format, ...)
 {
+    int check_severity_log_mask = CheckSeverityLogMask(severity);
+
+    if(check_severity_log_mask < 0)
+    {
+        return check_severity_log_mask;
+    }
+
     va_list args;
     int done;
 
