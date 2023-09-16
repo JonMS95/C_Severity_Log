@@ -6,7 +6,7 @@ static int severity_log_mask = SVRTY_LOG_MASK_EIW;
 
 /////////////////////////////////////////////////////////////
 /// @brief Changes log color depending on the severity level.
-/// @param severity Severity level (ERR, INF, WNG)
+/// @param severity Severity level (ERR, INF, WNG, DBG)
 /////////////////////////////////////////////////////////////
 static void ChangeSeverityColor(int severity)
 {
@@ -25,7 +25,7 @@ static void ResetSeverityColor()
 
 ///////////////////////////////////////////////////////////////
 /// @brief Prints a string at the beginning of the log message.
-/// @param severity Severity level (ERR, INF, WNG)
+/// @param severity Severity level (ERR, INF, WNG, DBG)
 ///////////////////////////////////////////////////////////////
 static void PrintSeverityLevel(int severity)
 {
@@ -90,7 +90,7 @@ static int CheckSeverityLogMask(int severity)
 /// @param severity Severity level (ERR, INF, WNG).
 /// @param format Formatted string. Same as what can be used with printf.
 /// @param  Variable Variable number of arguments. Data that is meant to be formatted and printed.
-/// @return < 0 if any error hapenned, number of characters written to stream otherwise.
+/// @return < 0 if any error happened, number of characters written to stream otherwise.
 //////////////////////////////////////////////////////////////////////////////////////////////////
 int SeverityLog(int severity, const char* format, ...)
 {
