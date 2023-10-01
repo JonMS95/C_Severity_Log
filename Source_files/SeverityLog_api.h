@@ -1,7 +1,11 @@
-#include <stdio.h>
-
 #ifndef SEVERITY_LOG_API_H
 #define SEVERITY_LOG_API_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <stdio.h>
 
 #define SVRTY_LVL_ERR   1
 #define SVRTY_LVL_INF   2
@@ -36,5 +40,9 @@ int SeverityLog(int severity, const char* format, ...);
 #define LOG_WNG(...) SeverityLog(SVRTY_LVL_WNG, __VA_ARGS__); PRINT_NL
 #define LOG_INF(...) SeverityLog(SVRTY_LVL_INF, __VA_ARGS__); PRINT_NL
 #define LOG_DBG(...) SeverityLog(SVRTY_LVL_DBG, __VA_ARGS__); PRINT_NL
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
