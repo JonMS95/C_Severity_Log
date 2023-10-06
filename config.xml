@@ -1,17 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
+    <Project_data
+        version_major="1"
+        version_minor="0"
+        version_mode="DEBUG"
+        URL="https://github.com/JonMS95/C_Severity_Log"
+        languages="C"
+        type="library"
+    />
     <!-- Directory structure -->
     <Directories>
         <Dynamic_libraries/>
-        <API>
-            <Header_files/>
-            <Dynamic_libraries/>
-        </API>
+        <API/>
     </Directories>
     
     <!-- Common shell files location -->
     <Common_shell_files
-        PathToShellFiles="/home/jon/Desktop/scripts/C/C_Common_shell_files"
+        version_major="1"
+        version_minor="0"
+        version_mode="DEBUG"
+        local_path="~/Desktop/scripts/C/C_Common_shell_files"
+        URL="https://github.com/JonMS95/C_Common_shell_files"
     />
 
     <!-- API files -->
