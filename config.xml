@@ -12,6 +12,13 @@
     <Directories>
         <Dynamic_libraries/>
         <API/>
+        <Tests>
+            <Dependency_files>
+                <Dynamic_libraries/>
+                <Header_files/>
+            </Dependency_files>
+            <Executable_files/>
+        </Tests>
     </Directories>
     
     <!-- Common shell files location -->
@@ -32,4 +39,18 @@
             SOPath="Dynamic_libraries/libSeverityLog.so"
         />
     </API>
+
+    <!-- Tests -->
+    <!-- Paths to dependency files for the testing executable. -->
+    <Tests>
+        <Dependencies Dest="Tests/Dependency_files">
+            <C_Severity_Log
+                version_major="1"
+                version_minor="0"
+                version_mode="DEBUG"
+                local_path="~/Desktop/scripts/C/C_Severity_Log"
+                URL="https://github.com/JonMS95/C_Severity_Log"
+            />
+        </Dependencies>
+    </Tests>
 </config>
