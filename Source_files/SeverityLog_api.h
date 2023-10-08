@@ -31,14 +31,14 @@ void SetSeverityLogMask(int mask);
 /// @param severity Severity level (ERR, INF, WNG).
 /// @param format Formatted string. Same as what can be used with printf.
 /// @param  Variable Variable number of arguments. Data that is meant to be formatted and printed.
-/// @return < 0 if any error hapenned, number of characters written to stream otherwise.
+/// @return < 0 if any error happened, number of characters written to stream otherwise.
 //////////////////////////////////////////////////////////////////////////////////////////////////
 int SeverityLog(int severity, const char* format, ...);
 
 #define PRINT_NL printf("\r\n")
 #define LOG_ERR(...) SeverityLog(SVRTY_LVL_ERR, __VA_ARGS__); PRINT_NL
-#define LOG_WNG(...) SeverityLog(SVRTY_LVL_WNG, __VA_ARGS__); PRINT_NL
 #define LOG_INF(...) SeverityLog(SVRTY_LVL_INF, __VA_ARGS__); PRINT_NL
+#define LOG_WNG(...) SeverityLog(SVRTY_LVL_WNG, __VA_ARGS__); PRINT_NL
 #define LOG_DBG(...) SeverityLog(SVRTY_LVL_DBG, __VA_ARGS__); PRINT_NL
 
 #ifdef __cplusplus
