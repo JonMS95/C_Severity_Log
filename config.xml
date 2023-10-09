@@ -30,16 +30,6 @@
         URL="https://github.com/JonMS95/C_Common_shell_files"
     />
 
-    <!-- API files -->
-    <API>
-        <Header_files
-            HeaderPath="Source_files/SeverityLog_api.h"
-        />
-        <Dynamic_libraries
-            SOPath="Dynamic_libraries/libSeverityLog.so"
-        />
-    </API>
-
     <!-- Tests -->
     <!-- Paths to dependency files for the testing executable. -->
     <Tests>
