@@ -60,8 +60,20 @@ int main()
 
         SeverityLog(test_result_log_mask, "Test %d %s.\r\n", i + 1, (test_result < 0 ? "failed" : "succeed"));
 
+        if(test_result < 0)
+        {
+            SeverityLog(test_result_log_mask, "TESTS FAILED.\r\n");
+            return -1;
+        }
+
         SetSeverityLogMask(SVRTY_LOG_MASK_OFF);
     }
+
+    SetSeverityLogMask(SVRTY_LOG_MASK_INF);
+
+    LOG_INF("TESTS SUCCEDED");
+
+    SetSeverityLogMask(SVRTY_LOG_MASK_OFF);
 
     return 0;
 }
