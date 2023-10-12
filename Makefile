@@ -57,7 +57,7 @@ d_test_deps	:= config/Tests/Dependencies/
 
 ############################################################################
 # Compound rules
-exe: clean check_xmlstarlet check_sh_deps ln_sh_files directories log.so api
+exe: clean check_xmlstarlet check_sh_deps ln_sh_files directories so_lib api
 
 test: clean_test directories test_deps test_main test_exe
 ############################################################################
@@ -113,7 +113,7 @@ ln_sh_files:
 directories:
 	@./$(shell_dirs)
 
-log.so:
+so_lib:
 	gcc $(DEBUG_INFO) -I$(HEADER_DEPS_DIR) -fPIC -shared $(lib_sources) -o $(lib_so)
 
 api:
