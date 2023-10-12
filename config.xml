@@ -20,12 +20,6 @@
             <Executable_files/>
         </Tests>
     </Directories>
-    
-    <!-- <OS_deps>
-        <os_dep module_name="gcc"/>
-        <os_dep module_name="git"/>
-        <os_dep module_name="mousepad"/>
-    </OS_deps> -->
 
     <!-- Common shell files location -->
     <Common_shell_files
