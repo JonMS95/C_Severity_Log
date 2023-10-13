@@ -26,7 +26,7 @@ PRJ_DATA_NODE 	:= config/Project_data/
 VERSION_MODE 	:= $(shell xmlstarlet sel -t -v "$(PRJ_DATA_NODE)@version_mode" $(CONFIG_FILE))
 VERSION_MAJOR 	:= $(shell xmlstarlet sel -t -v "$(PRJ_DATA_NODE)@version_major" $(CONFIG_FILE))
 VERSION_MINOR	:= $(shell xmlstarlet sel -t -v "$(PRJ_DATA_NODE)@version_minor" $(CONFIG_FILE))
-LIBRARY_LANG	:= $(shell xmlstarlet sel -t -v "$(PRJ_DATA_NODE)@languages" $(CONFIG_FILE))
+LIBRARY_LANG	:= $(shell xmlstarlet sel -t -v "$(PRJ_DATA_NODE)@language" $(CONFIG_FILE))
 LIBRARY_NAME 	:= $(shell xmlstarlet sel -t -v "$(PRJ_DATA_NODE)@library_name" $(CONFIG_FILE))
 SO_FILE_NAME 	:= lib$(LIBRARY_NAME).so.$(VERSION_MAJOR).$(VERSION_MINOR)
 
