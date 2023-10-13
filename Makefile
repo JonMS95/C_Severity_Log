@@ -1,29 +1,32 @@
 #############################################################################################################################################################
 # Common variables
-config_file	:= config.xml
+CONFIG_FILE	:= config.xml
 
-SH_FILES_NODE := config/Common_shell_files/
-SH_FILES_PATH := $(shell xmlstarlet sel -t -v "$(SH_FILES_NODE)@local_path" $(config_file))
-SH_FILES_LOCAL_PATH_BASENAME := $(shell basename $(SH_FILES_PATH))
-SH_FILES_VERSION_MAJOR := $(shell xmlstarlet sel -t -v "$(SH_FILES_NODE)@version_major" $(config_file))
-SH_FILES_VERSION_MINOR := $(shell xmlstarlet sel -t -v "$(SH_FILES_NODE)@version_minor" $(config_file))
-SH_FILES_VERSION_MODE := $(shell xmlstarlet sel -t -v "$(SH_FILES_NODE)@version_mode" $(config_file))
-SH_FILES_URL := $(shell xmlstarlet sel -t -v "$(SH_FILES_NODE)@URL" $(config_file))
+SH_FILES_LOCAL_NAME 			:= Common_shell_files
+SH_FILES_NODE 					:= config/Common_shell_files/
+SH_FILES_PATH 					:= $(shell xmlstarlet sel -t -v "$(SH_FILES_NODE)@local_path" $(CONFIG_FILE))
+SH_FILES_LOCAL_PATH_BASENAME 	:= $(shell basename $(SH_FILES_PATH))
+SH_FILES_VERSION_MAJOR 			:= $(shell xmlstarlet sel -t -v "$(SH_FILES_NODE)@version_major" $(CONFIG_FILE))
+SH_FILES_VERSION_MINOR 			:= $(shell xmlstarlet sel -t -v "$(SH_FILES_NODE)@version_minor" $(CONFIG_FILE))
+SH_FILES_VERSION_MODE 			:= $(shell xmlstarlet sel -t -v "$(SH_FILES_NODE)@version_mode" $(CONFIG_FILE))
+SH_FILES_URL 					:= $(shell xmlstarlet sel -t -v "$(SH_FILES_NODE)@URL" $(CONFIG_FILE))
+
 ifeq ($(SH_FILES_VERSION_MODE), DEBUG)
 	SH_FILES_VERSION_MODE_SUFFIX := _DEBUG
 else
 	SH_FILES_VERSION_MODE_SUFFIX :=
 endif
-SH_FILES_VERSION := v$(SH_FILES_VERSION_MAJOR)_$(SH_FILES_VERSION_MINOR)$(SH_FILES_VERSION_MODE_SUFFIX)
-SH_FILES_DEP_PATH := $(SH_FILES_PATH)/API/$(SH_FILES_VERSION)
+
+SH_FILES_VERSION 				:= v$(SH_FILES_VERSION_MAJOR)_$(SH_FILES_VERSION_MINOR)$(SH_FILES_VERSION_MODE_SUFFIX)
+SH_FILES_DEP_PATH 				:= $(SH_FILES_PATH)/API/$(SH_FILES_VERSION)
 
 PRJ_DATA_NODE := config/Project_data/
-VERSION_MODE := "$(shell xmlstarlet sel -t -v "$(PRJ_DATA_NODE)@version_mode" $(config_file))"
+VERSION_MODE := "$(shell xmlstarlet sel -t -v "$(PRJ_DATA_NODE)@version_mode" $(CONFIG_FILE))"
 
-shell_dirs			:= Common_shell_files/directories.sh
-shell_sym_links		:= Common_shell_files/sym_links.sh
-shell_gen_versions 	:= Common_shell_files/gen_version.sh
-shell_test			:= Shell_files/test.sh
+SHELL_DIRS			:= $(SH_FILES_LOCAL_NAME)/directories.sh
+SHELL_SYM_LINKS		:= $(SH_FILES_LOCAL_NAME)/sym_links.sh
+SHELL_GEN_VERSIONS 	:= $(SH_FILES_LOCAL_NAME)/gen_version.sh
+SHELL_TEST			:= Shell_files/test.sh
 
 ifeq ($(VERSION_MODE), "DEBUG")
 	DEBUG_INFO := -g -Wall
@@ -44,15 +47,15 @@ LIBRARY_NAME := lib$(OUTPUT_SO)
 
 #################################################
 # Library variables
-lib_sources	:= Source_files/*
+LIB_SOURCES	:= Source_files/*
 
-lib_so		:= Dynamic_libraries/$(LIBRARY_NAME)
+LIB_SO		:= Dynamic_libraries/$(LIBRARY_NAME)
 
-src_main	:= Tests/Source_files/main.c
+SRC_MAIN	:= Tests/Source_files/main.c
 
-exe_main	:= Tests/Executable_files/main
+EXE_MAIN	:= Tests/Executable_files/main
 
-d_test_deps	:= config/Tests/Dependencies/
+D_TEST_DEPS	:= config/Tests/Dependencies/
 #################################################
 
 ############################################################################
@@ -105,19 +108,19 @@ check_sh_deps:
 #############################################################################
 # Exe Rules
 clean:
-	rm -rf Common_shell_files Object_files Dynamic_libraries Dependency_files
+	rm -rf $(SH_FILES_LOCAL_NAME) Object_files Dynamic_libraries Dependency_files
 
 ln_sh_files:
-	ln -sf $(SH_FILES_DEP_PATH) Common_shell_files
+	ln -sf $(SH_FILES_DEP_PATH) $(SH_FILES_LOCAL_NAME)
 
 directories:
-	@./$(shell_dirs)
+	@./$(SHELL_DIRS)
 
 so_lib:
-	gcc $(DEBUG_INFO) -I$(HEADER_DEPS_DIR) -fPIC -shared $(lib_sources) -o $(lib_so)
+	gcc $(DEBUG_INFO) -I$(HEADER_DEPS_DIR) -fPIC -shared $(LIB_SOURCES) -o $(LIB_SO)
 
 api:
-	@bash $(shell_gen_versions)
+	@bash $(SHELL_GEN_VERSIONS)
 
 # Use this one carefully. Non-tagged versions will be impossible to recover if used.
 clean_api:
@@ -130,11 +133,11 @@ clean_test:
 	rm -rf Tests/Dependency_files Tests/Object_files Tests/Executable_files
 
 test_deps:
-	@bash $(shell_sym_links) -d $(d_test_deps)
+	@bash $(SHELL_SYM_LINKS) -d $(D_TEST_DEPS)
 
 test_main:
-	gcc $(DEBUG_INFO) -I$(TEST_HEADER_DEPS_DIR) $(src_main) -L$(TEST_SO_DEPS_DIR) -lSeverityLog -o $(exe_main)
+	gcc $(DEBUG_INFO) -I$(TEST_HEADER_DEPS_DIR) $(SRC_MAIN) -L$(TEST_SO_DEPS_DIR) -lSeverityLog -o $(EXE_MAIN)
 
 test_exe:
-	@./$(shell_test)
+	@./$(SHELL_TEST)
 ######################################################################################################################
