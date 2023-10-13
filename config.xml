@@ -5,8 +5,8 @@
         version_minor="0"
         version_mode="DEBUG"
         URL="https://github.com/JonMS95/C_Severity_Log"
-        languages="C"
         type="library"
+        language="C"
         library_name="SeverityLog"
     />
     <!-- Directory structure -->
