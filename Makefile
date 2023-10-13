@@ -2,6 +2,7 @@
 # Common variables
 CONFIG_FILE	:= config.xml
 
+# Common shell files data
 SH_FILES_LOCAL_NAME 			:= Common_shell_files
 SH_FILES_NODE 					:= config/Common_shell_files/
 SH_FILES_PATH 					:= $(shell xmlstarlet sel -t -v "$(SH_FILES_NODE)@local_path" $(CONFIG_FILE))
@@ -20,42 +21,57 @@ endif
 SH_FILES_VERSION 				:= v$(SH_FILES_VERSION_MAJOR)_$(SH_FILES_VERSION_MINOR)$(SH_FILES_VERSION_MODE_SUFFIX)
 SH_FILES_DEP_PATH 				:= $(SH_FILES_PATH)/API/$(SH_FILES_VERSION)
 
-PRJ_DATA_NODE := config/Project_data/
-VERSION_MODE := "$(shell xmlstarlet sel -t -v "$(PRJ_DATA_NODE)@version_mode" $(CONFIG_FILE))"
+# Project data
+PRJ_DATA_NODE 	:= config/Project_data/
+VERSION_MODE 	:= $(shell xmlstarlet sel -t -v "$(PRJ_DATA_NODE)@version_mode" $(CONFIG_FILE))
+VERSION_MAJOR 	:= $(shell xmlstarlet sel -t -v "$(PRJ_DATA_NODE)@version_major" $(CONFIG_FILE))
+VERSION_MINOR	:= $(shell xmlstarlet sel -t -v "$(PRJ_DATA_NODE)@version_minor" $(CONFIG_FILE))
+LIBRARY_LANG	:= $(shell xmlstarlet sel -t -v "$(PRJ_DATA_NODE)@languages" $(CONFIG_FILE))
+LIBRARY_NAME 	:= $(shell xmlstarlet sel -t -v "$(PRJ_DATA_NODE)@library_name" $(CONFIG_FILE))
+SO_FILE_NAME 	:= lib$(LIBRARY_NAME).so.$(VERSION_MAJOR).$(VERSION_MINOR)
 
+# Shell files
 SHELL_DIRS			:= $(SH_FILES_LOCAL_NAME)/directories.sh
 SHELL_SYM_LINKS		:= $(SH_FILES_LOCAL_NAME)/sym_links.sh
 SHELL_GEN_VERSIONS 	:= $(SH_FILES_LOCAL_NAME)/gen_version.sh
-SHELL_TEST			:= Shell_files/test.sh
 
-ifeq ($(VERSION_MODE), "DEBUG")
+LOCAL_SHELL_TEST	:= Shell_files/test.sh
+
+# Debug flags
+ifeq ("$(VERSION_MODE)", "DEBUG")
 	DEBUG_INFO := -g -Wall
 else
 	DEBUG_INFO :=
 endif
 
+# Compiler selection and flags
+ifeq ($(LIBRARY_LANG), C)
+	COMP := $(CC)
+	CFLAGS := $(DEBUG_INFO)
+	FLAGS := $(CFLAGS)
+else ifeq ($(LIBRARY_LANG), C++)
+	COMP := $(CXX)
+	CXXFLAGS := $(DEBUG_INFO)
+	FLAGS := $(CXXFLAGS)
+endif
+
+# Dependencies directories
 HEADER_DEPS_DIR			:= Dependency_files/Header_files
 SO_DEPS_DIR				:= Dependency_files/Dynamic_libraries
 
 TEST_HEADER_DEPS_DIR	:= Tests/$(HEADER_DEPS_DIR)
 TEST_SO_DEPS_DIR		:= Tests/$(SO_DEPS_DIR)
-
-API_FILE := $(shell find Source_files -maxdepth 1 -type f -name '*_api.h')
-OUTPUT_SO := $(patsubst %_api.h,%.so,$(notdir $(API_FILE)))
-LIBRARY_NAME := lib$(OUTPUT_SO)
 #############################################################################################################################################################
 
 #################################################
 # Library variables
-LIB_SOURCES	:= Source_files/*
+LIB_SOURCES		:= Source_files/*
+LIB_SO			:= Dynamic_libraries/$(SO_FILE_NAME)
 
-LIB_SO		:= Dynamic_libraries/$(LIBRARY_NAME)
+TEST_SRC_MAIN	:= Tests/Source_files/main.c
+TEST_EXE_MAIN	:= Tests/Executable_files/main
 
-SRC_MAIN	:= Tests/Source_files/main.c
-
-EXE_MAIN	:= Tests/Executable_files/main
-
-D_TEST_DEPS	:= config/Tests/Dependencies/
+D_TEST_DEPS		:= config/Tests/Dependencies/
 #################################################
 
 ############################################################################
@@ -73,6 +89,17 @@ check_xmlstarlet:
 		echo "xmlstarlet is not installed on the machine."		;\
 		sudo apt install xmlstarlet								;\
 	fi															;\
+
+sh_echo:
+	@echo "SH_FILES_DEP_PATH = $(SH_FILES_DEP_PATH)"
+	@echo "SH_FILES_VERSION_MODE = $(SH_FILES_VERSION_MODE)"
+	@echo "SH_FILES_PATH = $(SH_FILES_PATH)"
+	@echo "SH_FILES_URL = $(SH_FILES_URL)"
+	@echo "SH_FILES_LOCAL_PATH_BASENAME = $(SH_FILES_LOCAL_PATH_BASENAME)"
+	@echo "SH_FILES_VERSION = $(SH_FILES_VERSION)"
+	@echo "SO library name: $(SO_FILE_NAME)"
+	@echo "LIB LANGUAGE = $(LIBRARY_LANG)"
+	@echo "COMPILER = $(COMP)"
 
 check_sh_deps:
 	@if [ ! -d $(SH_FILES_DEP_PATH) ]; then 							 \
@@ -117,7 +144,7 @@ directories:
 	@./$(SHELL_DIRS)
 
 so_lib:
-	gcc $(DEBUG_INFO) -I$(HEADER_DEPS_DIR) -fPIC -shared $(LIB_SOURCES) -o $(LIB_SO)
+	$(COMP) $(FLAGS) -I$(HEADER_DEPS_DIR) -fPIC -shared $(LIB_SOURCES) -o $(LIB_SO)
 
 api:
 	@bash $(SHELL_GEN_VERSIONS)
@@ -136,8 +163,8 @@ test_deps:
 	@bash $(SHELL_SYM_LINKS) -d $(D_TEST_DEPS)
 
 test_main:
-	gcc $(DEBUG_INFO) -I$(TEST_HEADER_DEPS_DIR) $(SRC_MAIN) -L$(TEST_SO_DEPS_DIR) -lSeverityLog -o $(EXE_MAIN)
+	$(COMP) $(FLAGS) -I$(TEST_HEADER_DEPS_DIR) $(TEST_SRC_MAIN) -L$(TEST_SO_DEPS_DIR) -lSeverityLog -o $(TEST_EXE_MAIN)
 
 test_exe:
-	@./$(SHELL_TEST)
+	@./$(LOCAL_SHELL_TEST)
 ######################################################################################################################
