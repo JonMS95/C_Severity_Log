@@ -39,7 +39,7 @@
                 version_major="1"
                 version_minor="0"
                 version_mode="DEBUG"
-                local_path="~/Desktop/scripts/C/C_Severity_Log"
+                local_path="~/Desktop/scripts/C/C_dep_test/C_Severity_Log"
                 URL="https://github.com/JonMS95/C_Severity_Log"
             />
         </Dependencies>
