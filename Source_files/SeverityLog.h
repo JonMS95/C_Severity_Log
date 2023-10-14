@@ -17,7 +17,7 @@
 #define SVRTY_LOG_WNG_SILENT_LVL    -1
 
 static void ChangeSeverityColor(int severity);
-static void ResetSeverityColor();
+static void ResetSeverityColor(void);
 static void PrintSeverityLevel(int severity);
 static int CheckSeverityLogMask(int severity);
 

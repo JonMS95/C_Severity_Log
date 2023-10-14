@@ -5,8 +5,9 @@
         version_minor="0"
         version_mode="DEBUG"
         URL="https://github.com/JonMS95/C_Severity_Log"
-        languages="C"
         type="library"
+        language="C"
+        library_name="SeverityLog"
     />
     <!-- Directory structure -->
     <Directories>
@@ -20,11 +21,11 @@
             <Executable_files/>
         </Tests>
     </Directories>
-    
+
     <!-- Common shell files location -->
     <Common_shell_files
         version_major="1"
-        version_minor="0"
+        version_minor="1"
         version_mode="DEBUG"
         local_path="~/Desktop/scripts/C/C_Common_shell_files"
         URL="https://github.com/JonMS95/C_Common_shell_files"
@@ -38,7 +39,7 @@
                 version_major="1"
                 version_minor="0"
                 version_mode="DEBUG"
-                local_path="~/Desktop/scripts/C/C_Severity_Log"
+                local_path="~/Desktop/scripts/C/C_dep_test/C_Severity_Log"
                 URL="https://github.com/JonMS95/C_Severity_Log"
             />
         </Dependencies>
