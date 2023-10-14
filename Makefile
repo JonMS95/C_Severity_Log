@@ -137,7 +137,7 @@ check_sh_deps:
 		if [ $(SH_FILES_VERSION_MODE) = "DEBUG" ]; then 			 \
 			echo "Cannot download DEBUG versions from GitHub"		;\
 			exit 1 													;\
-		fi 															:\
+		fi 															;\
 																	 \
 		if [ ! -d $$(dirname $(SH_FILES_PATH)) ]; then 				 \
 			mkdir -p $$(dirname $(SH_FILES_PATH))					;\
