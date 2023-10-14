@@ -1,7 +1,4 @@
 #############################################################################################################################################################
-# Basic system dependencies
-BASIC_SYSTEM_DEPS=${COMP} xmlstarlet git
-
 # Common variables
 CONFIG_FILE	:= config.xml
 
@@ -9,7 +6,6 @@ CONFIG_FILE	:= config.xml
 SH_FILES_LOCAL_NAME 			:= Common_shell_files
 SH_FILES_NODE 					:= config/Common_shell_files/
 SH_FILES_PATH 					:= $(shell xmlstarlet sel -t -v "$(SH_FILES_NODE)@local_path" $(CONFIG_FILE))
-SH_FILES_LOCAL_PATH_BASENAME 	:= $(shell basename $(SH_FILES_PATH))
 SH_FILES_VERSION_MAJOR 			:= $(shell xmlstarlet sel -t -v "$(SH_FILES_NODE)@version_major" $(CONFIG_FILE))
 SH_FILES_VERSION_MINOR 			:= $(shell xmlstarlet sel -t -v "$(SH_FILES_NODE)@version_minor" $(CONFIG_FILE))
 SH_FILES_VERSION_MODE 			:= $(shell xmlstarlet sel -t -v "$(SH_FILES_NODE)@version_mode" $(CONFIG_FILE))
@@ -58,6 +54,9 @@ else ifeq ($(LIBRARY_LANG), C++)
 	FLAGS := $(CXXFLAGS)
 endif
 
+# Basic system dependencies
+BASIC_SYSTEM_DEPS := $(COMP) xmlstarlet git
+
 # Dependencies directories
 HEADER_DEPS_DIR			:= Dependency_files/Header_files
 SO_DEPS_DIR				:= Dependency_files/Dynamic_libraries
@@ -77,12 +76,12 @@ TEST_EXE_MAIN	:= Tests/Executable_files/main
 D_TEST_DEPS		:= config/Tests/Dependencies/
 #################################################
 
-############################################################################
+#################################################################################
 # Compound rules
-exe: clean check_basic_deps check_sh_deps ln_sh_files directories so_lib api
+exe: clean check_basic_deps check_sh_deps ln_sh_files directories deps so_lib api
 
 test: clean_test directories test_deps test_main test_exe
-############################################################################
+#################################################################################
 
 ##########################################################################
 # Basic dependencies
@@ -101,40 +100,54 @@ sh_echo:
 	@echo "SH_FILES_VERSION_MODE = $(SH_FILES_VERSION_MODE)"
 	@echo "SH_FILES_PATH = $(SH_FILES_PATH)"
 	@echo "SH_FILES_URL = $(SH_FILES_URL)"
-	@echo "SH_FILES_LOCAL_PATH_BASENAME = $(SH_FILES_LOCAL_PATH_BASENAME)"
 	@echo "SH_FILES_VERSION = $(SH_FILES_VERSION)"
 	@echo "SO library name: $(SO_FILE_NAME)"
 	@echo "LIB LANGUAGE = $(LIBRARY_LANG)"
 	@echo "COMPILER = $(COMP)"
 
 check_sh_deps:
-	@if [ ! -d $(SH_FILES_DEP_PATH) ]; then 							 \
-																		 \
-		echo "$(SH_FILES_DEP_PATH) does not exist!"						;\
-																		 \
-		if [ $(SH_FILES_VERSION_MODE) = "DEBUG" ]; then 				 \
-			echo "Cannot download DEBUG versions from GitHub"			;\
-			exit 1														;\
-		fi																;\
-																		 \
-		if [ -d $$(dirname $(SH_FILES_PATH)) ]; then 					 \
-			echo "path $$(dirname $(SH_FILES_PATH)) exists"				;\
-		else															 \
-			echo "path $$(dirname $(SH_FILES_PATH)) DOES NOT exist"		;\
-			mkdir -p $$(dirname $(SH_FILES_PATH))						;\
-		fi																;\
-																		 \
-		echo "Cloning from $(SH_FILES_URL)"								;\
-		git clone $(SH_FILES_URL)										;\
-		cd $(SH_FILES_LOCAL_PATH_BASENAME)								;\
-		git checkout "tags/$(SH_FILES_VERSION)"							;\
-		./Source_files/gen_CSF_version.sh								;\
-		git checkout main												;\
-		git pull														;\
-		cd ..															;\
-		mv $(SH_FILES_LOCAL_PATH_BASENAME) $(SH_FILES_PATH)				;\
-																		 \
-	fi																	 \
+	@echo "Check whether or not do Common shell files deps exist"	;\
+	if [ -d $(SH_FILES_PATH) ]; then								 \
+																	 \
+		if [ -d $(SH_FILES_DEP_PATH) ]; then						 \
+																	 \
+			echo "API found, everything is OK." 					;\
+																	 \
+		else 														 \
+																	 \
+			if [ $(SH_FILES_VERSION_MODE) = "DEBUG" ]; then 		 \
+				echo "Cannot download DEBUG versions from GitHub"	;\
+				exit 1 												;\
+			fi 														;\
+																	 \
+			cd $(SH_FILES_PATH) 									;\
+																	 \
+			if [ ! -d API ]; then 									 \
+				./Source_files/directories.sh 						;\
+			fi 														;\
+																	 \
+			git pull 												;\
+			git checkout "tags/$(SH_FILES_VERSION)" 				;\
+			./Source_files/gen_CSF_version.sh 						;\
+			git checkout main 										;\
+	 		git pull 												;\
+		fi 															;\
+																	 \
+	else															 \
+																	 \
+		if [ ! -d $$(dirname $(SH_FILES_PATH)) ]; then 				 \
+			mkdir -p $$(dirname $(SH_FILES_PATH))					;\
+		fi 															;\
+																	 \
+		cd $$(dirname $(SH_FILES_PATH)) 							;\
+		git clone $(SH_FILES_URL) 									;\
+		cd $(SH_FILES_PATH) 										;\
+		git checkout "tags/$(SH_FILES_VERSION)" 					;\
+		./Source_files/gen_CSF_version.sh 							;\
+		git checkout main 											;\
+	 	git pull 													;\
+																	 \
+	fi 																;\
 
 ##########################################################################
 
@@ -148,6 +161,9 @@ ln_sh_files:
 
 directories:
 	@./$(SHELL_DIRS)
+
+deps:
+	@bash $(SHELL_SYM_LINKS)
 
 so_lib:
 	$(COMP) $(FLAGS) -I$(HEADER_DEPS_DIR) -fPIC -shared $(LIB_SOURCES) -o $(LIB_SO)
