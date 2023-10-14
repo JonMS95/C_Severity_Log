@@ -1,4 +1,7 @@
 #############################################################################################################################################################
+# Basic system dependencies
+BASIC_SYSTEM_DEPS=${COMP} xmlstarlet git
+
 # Common variables
 CONFIG_FILE	:= config.xml
 
@@ -76,19 +79,22 @@ D_TEST_DEPS		:= config/Tests/Dependencies/
 
 ############################################################################
 # Compound rules
-exe: clean check_xmlstarlet check_sh_deps ln_sh_files directories so_lib api
+exe: clean check_basic_deps check_sh_deps ln_sh_files directories so_lib api
 
 test: clean_test directories test_deps test_main test_exe
 ############################################################################
 
 ##########################################################################
 # Basic dependencies
-
-check_xmlstarlet:
-	@if ! command -v xmlstarlet > /dev/null 2>&1; then 			 \
-		echo "xmlstarlet is not installed on the machine."		;\
-		sudo apt install xmlstarlet								;\
-	fi															;\
+check_basic_deps:
+	@for i in $(BASIC_SYSTEM_DEPS); do								 \
+		if ! command -v $${i} > /dev/null 2>&1; then 			 	 \
+			echo "$${i} is not installed in the machine."			;\
+			sudo apt install $${i}									;\
+		else														 \
+			echo "$${i} is already installed in the machine"		;\
+		fi															;\
+	done															;\
 
 sh_echo:
 	@echo "SH_FILES_DEP_PATH = $(SH_FILES_DEP_PATH)"
