@@ -95,16 +95,6 @@ check_basic_deps:
 		fi															;\
 	done															;\
 
-sh_echo:
-	@echo "SH_FILES_DEP_PATH = $(SH_FILES_DEP_PATH)"
-	@echo "SH_FILES_VERSION_MODE = $(SH_FILES_VERSION_MODE)"
-	@echo "SH_FILES_PATH = $(SH_FILES_PATH)"
-	@echo "SH_FILES_URL = $(SH_FILES_URL)"
-	@echo "SH_FILES_VERSION = $(SH_FILES_VERSION)"
-	@echo "SO library name: $(SO_FILE_NAME)"
-	@echo "LIB LANGUAGE = $(LIBRARY_LANG)"
-	@echo "COMPILER = $(COMP)"
-
 check_sh_deps:
 	@echo "Check whether or not do Common shell files deps exist"	;\
 	if [ -d $(SH_FILES_PATH) ]; then								 \
@@ -180,7 +170,7 @@ clean_api:
 	rm -rf API
 #############################################################################
 
-######################################################################################################################
+##########################################################################################################################
 # Test Rules
 clean_test:
 	rm -rf Tests/Dependency_files Tests/Object_files Tests/Executable_files
@@ -189,8 +179,8 @@ test_deps:
 	@bash $(SHELL_SYM_LINKS) -d $(D_TEST_DEPS)
 
 test_main:
-	$(COMP) $(FLAGS) -I$(TEST_HEADER_DEPS_DIR) $(TEST_SRC_MAIN) -L$(TEST_SO_DEPS_DIR) -lSeverityLog -o $(TEST_EXE_MAIN)
+	$(COMP) $(FLAGS) -I$(TEST_HEADER_DEPS_DIR) $(TEST_SRC_MAIN) -L$(TEST_SO_DEPS_DIR) $(addprefix -l,$(patsubst lib%.so,%,$(shell ls $(TEST_SO_DEPS_DIR)))) -o $(TEST_EXE_MAIN)
 
 test_exe:
 	@./$(LOCAL_SHELL_TEST)
-######################################################################################################################
+##########################################################################################################################
