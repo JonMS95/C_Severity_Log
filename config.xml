@@ -25,8 +25,8 @@
     <!-- Common shell files location -->
     <Common_shell_files
         version_major="1"
-        version_minor="1"
-        version_mode="DEBUG"
+        version_minor="0"
+        version_mode="RELEASE"
         local_path="~/Desktop/scripts/C/C_Common_shell_files"
         URL="https://github.com/JonMS95/C_Common_shell_files"
     />
