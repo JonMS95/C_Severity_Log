@@ -114,5 +114,7 @@ int SeverityLog(int severity, const char* format, ...)
 
     ResetSeverityColor();
 
+    printf("\r\n");
+
     return done;
 }
