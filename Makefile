@@ -70,7 +70,7 @@ TEST_SO_DEPS_DIR		:= Tests/$(SO_DEPS_DIR)
 LIB_SOURCES		:= Source_files/*
 LIB_SO			:= Dynamic_libraries/$(SO_FILE_NAME)
 
-TEST_SRC_MAIN	:= Tests/Source_files/main.c
+TEST_SRC_MAIN	:= Tests/Source_files/*
 TEST_EXE_MAIN	:= Tests/Executable_files/main
 
 D_TEST_DEPS		:= config/Tests/Dependencies/
