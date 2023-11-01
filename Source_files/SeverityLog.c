@@ -1,8 +1,27 @@
+/************************************/
+/******** Include statements ********/
+/************************************/
+
 #include <stdio.h>
 #include <stdarg.h>
+#include <time.h>
+#include <stdbool.h>
 #include "SeverityLog.h"
 
-static int severity_log_mask = SVRTY_LOG_MASK_EIW;
+/************************************/
+
+/***********************************/
+/******** Private variables ********/
+/***********************************/
+
+static int  severity_log_mask   = SVRTY_LOG_MASK_EIW;
+static bool print_time_status   = false;
+
+/***********************************/
+
+/*************************************/
+/******* Function definitions ********/
+/*************************************/
 
 /////////////////////////////////////////////////////////////
 /// @brief Changes log color depending on the severity level.
@@ -85,6 +104,37 @@ static int CheckSeverityLogMask(int severity)
     return SVRTY_LOG_WNG_SILENT_LVL;
 }
 
+///////////////////////////////////////////////////////////
+/// @brief Set value of print_time_status private variable.
+/// @param time_status Target status value (T/F).
+///////////////////////////////////////////////////////////
+void SetSeverityLogPrintTimeStatus(bool time_status)
+{
+    print_time_status = time_status;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////// 
+/// @brief If print_time_status == true, it prints time (includes date) in local timezone.
+//////////////////////////////////////////////////////////////////////////////////////////
+void PrintTime(void)
+{
+    if(!print_time_status)
+        return;
+
+    time_t current_time;
+    struct tm* time_info;
+
+    time(&current_time);  // Get the current time
+    time_info = localtime(&current_time);  // Convert to local time
+
+    if (time_info == NULL)
+        return;
+
+    char time_str[128];
+    strftime(time_str, sizeof(time_str), SVRTY_STR_TIME_DATE, time_info);
+    printf("%s", time_str);
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Prints a log with different color and initial string depending on the severity level.
 /// @param severity Severity level (ERR, INF, WNG).
@@ -106,6 +156,8 @@ int SeverityLog(int severity, const char* format, ...)
 
     ChangeSeverityColor(severity);
 
+    PrintTime();
+
     PrintSeverityLevel(severity);
 
     va_start(args, format);
@@ -118,3 +170,5 @@ int SeverityLog(int severity, const char* format, ...)
 
     return done;
 }
+
+/*************************************/
