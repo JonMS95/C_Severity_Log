@@ -44,6 +44,8 @@ int main()
     int test_result = 0;
     int test_result_log_mask = 0;
 
+    SetSeverityLogPrintTimeStatus(true);
+
     for(int i = 0; i < (sizeof(severity_log_masks) / sizeof(severity_log_masks[0])); i++)
     {
         SetSeverityLogMask(SVRTY_LOG_MASK_INF);
