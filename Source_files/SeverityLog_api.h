@@ -5,7 +5,18 @@
 extern "C" {
 #endif
 
+/************************************/
+/******** Include statements ********/
+/************************************/
+
 #include <stdio.h>
+#include <stdbool.h>
+
+/************************************/
+
+/***********************************/
+/******** Define statements ********/
+/***********************************/
 
 #define SVRTY_LVL_ERR   1
 #define SVRTY_LVL_INF   2
@@ -20,11 +31,23 @@ extern "C" {
 #define SVRTY_LOG_MASK_EIW  0b0111 // EIW stands for ERR, INF, WNG
 #define SVRTY_LOG_MASK_ALL  0b1111
 
+/***********************************/
+
+/*************************************/
+/******** Function prototypes ********/
+/*************************************/
+
 /////////////////////////////////////////////////////
 /// @brief Sets severity log mask to the input value.
 /// @param mask Target severity log mask.
 /////////////////////////////////////////////////////
 void SetSeverityLogMask(int mask);
+
+///////////////////////////////////////////////////////////
+/// @brief Set value of print_time_status private variable.
+/// @param time_status Target status value (T/F).
+///////////////////////////////////////////////////////////
+void SetSeverityLogPrintTimeStatus(bool time_status);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Prints a log with different color and initial string depending on the severity level.
@@ -39,6 +62,8 @@ int SeverityLog(int severity, const char* format, ...);
 #define LOG_INF(...) SeverityLog(SVRTY_LVL_INF, __VA_ARGS__)
 #define LOG_WNG(...) SeverityLog(SVRTY_LVL_WNG, __VA_ARGS__)
 #define LOG_DBG(...) SeverityLog(SVRTY_LVL_DBG, __VA_ARGS__)
+
+/*************************************/
 
 #ifdef __cplusplus
 }
