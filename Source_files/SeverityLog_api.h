@@ -9,7 +9,6 @@ extern "C" {
 /******** Include statements ********/
 /************************************/
 
-#include <stdio.h>
 #include <stdbool.h>
 
 /************************************/
@@ -17,6 +16,8 @@ extern "C" {
 /***********************************/
 /******** Define statements ********/
 /***********************************/
+
+#define C_SEVERITY_LOG_API __attribute__((visibility("default")))
 
 #define SVRTY_LVL_ERR   1
 #define SVRTY_LVL_INF   2
@@ -41,13 +42,13 @@ extern "C" {
 /// @brief Sets severity log mask to the input value.
 /// @param mask Target severity log mask.
 /////////////////////////////////////////////////////
-void SetSeverityLogMask(int mask);
+C_SEVERITY_LOG_API void SetSeverityLogMask(int mask);
 
 ///////////////////////////////////////////////////////////
 /// @brief Set value of print_time_status private variable.
 /// @param time_status Target status value (T/F).
 ///////////////////////////////////////////////////////////
-void SetSeverityLogPrintTimeStatus(bool time_status);
+C_SEVERITY_LOG_API void SetSeverityLogPrintTimeStatus(bool time_status);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Prints a log with different color and initial string depending on the severity level.
@@ -56,7 +57,7 @@ void SetSeverityLogPrintTimeStatus(bool time_status);
 /// @param  Variable Variable number of arguments. Data that is meant to be formatted and printed.
 /// @return < 0 if any error happened, number of characters written to stream otherwise.
 //////////////////////////////////////////////////////////////////////////////////////////////////
-int SeverityLog(int severity, const char* format, ...);
+C_SEVERITY_LOG_API int SeverityLog(int severity, const char* format, ...);
 
 #define LOG_ERR(...) SeverityLog(SVRTY_LVL_ERR, __VA_ARGS__)
 #define LOG_INF(...) SeverityLog(SVRTY_LVL_INF, __VA_ARGS__)
