@@ -130,7 +130,7 @@ On top of simply logging, the information to be displayed can be restricted depe
 C_SEVERITY_LOG_API void SetSeverityLogMask(int mask);
 ```
 
-Mask values have already been defined in the API header file and can be the following:
+Some of the mask values have already been defined in the API header file and can be the following:
 
 ```c
 #define SVRTY_LOG_MASK_OFF  0b0000
