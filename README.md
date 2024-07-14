@@ -15,9 +15,9 @@ A powerful and easy-to-use logging system designed to enhance the monitoring and
 
 
 ## Introduction <a id="introduction"></a> 📑
-When it comes to debugging, there are a couple of tools every developer should be used to: debugggers (such as [**GDB**](https://www.sourceware.org/gdb/)) and logging systems.
-More than a debugging tool, the latter is a way to monitorize the activity of a running application, providing developer-specified information.
-The name of the library is just a reference to the fact that logs are displayed on a different way depending on their severity level.
+When it comes to debugging, there are a couple of tools every developer should be accustomed to using: debuggers (such as [**GDB**](https://www.sourceware.org/gdb/)) and logging systems.
+More than a debugging tool, the latter is a way to monitor the activity of a running application, providing developer-specified information.
+The library's name refers to the fact that logs are displayed differently depending on their severity level.
 
 
 ## Features <a id="features"></a> 🌟
@@ -30,7 +30,7 @@ In order to get some knowledge about how to use the library alongside its option
 
 
 ## Prerequisites <a id="prerequisites"></a> 🧱
-By now, the application has only been tested in POSIX-compliant Linux distros. In these, many of the dependencies dependencies below may already come installed in the SO.
+By now, the application has only been tested in POSIX-compliant Linux distros. In these, many of the dependencies below may already come installed in the OS.
 In the following list, the minimum versions required (if any) by the library are listed.
 
 | Dependency                   | Purpose                                 | Minimum version |
@@ -67,7 +67,7 @@ cd /path/to/repos/C_Severity_Log
 find . -type f -exec chmod u+x {} +
 ```
 
-3. For the library to be built (i.e., clean, download dependencies and compile), just type the following on your command:
+3. For the library to be built (i.e., clean, download dependencies and compile), just type the following:
 
 ```bash
 make
