@@ -8,23 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.2] - 2023-11-24
 ### Added
-
-### Changed
-
-### Fixed
-
+* Added visibility modifiers in order to avoid potential naming conflicts in the future
 
 ## [1.1] - 2023-11-02
 ### Added
-
-### Changed
-
-### Fixed
-
+* **_SetSeverityLogPrintTimeStatus_** API function: sets time and date option
 
 ## [1.0] - 2023-10-15
 ### Added
-
-### Changed
-
-### Fixed
+* First version
