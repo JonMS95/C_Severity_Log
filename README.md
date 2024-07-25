@@ -47,8 +47,10 @@ In the following list, the minimum versions required (if any) by the library are
 [git-link]:        https://git-scm.com/
 [xmlstarlet-link]: https://xmlstar.sourceforge.net/
 
-Except for Make and Bash, the latest version of each of the remaining dependencies will be installed automatically if they have not been found beforehand. 
+Except for Make and Bash, the latest version of each of the remaining dependencies will be installed automatically if they have not been found beforehand.
 
+In any case, installing **_Xmlstarlet_** before executing any of the commands below is strongly recommended. Otherwise, it can lead to error since make file
+contains some calls to it at the top. If that happens, just repeat the process (Xmlstarlet would have been already installed).
 
 ## Installation instructions <a id="installation-instructions"></a> 📓
 ### Download and compile <a id="download-and-compile"></a> ⚙️
