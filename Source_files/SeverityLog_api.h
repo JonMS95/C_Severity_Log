@@ -50,6 +50,12 @@ C_SEVERITY_LOG_API void SetSeverityLogMask(int mask);
 ///////////////////////////////////////////////////////////
 C_SEVERITY_LOG_API void SetSeverityLogPrintTimeStatus(bool time_status);
 
+/////////////////////////////////////////////////////////////
+/// @brief Set value of print_exe_file_name private variable.
+/// @param exe_name_status Target status value (T/F).
+/////////////////////////////////////////////////////////////
+C_SEVERITY_LOG_API void SetSeverityLogPrintExeNameStatus(bool exe_name_status);
+
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Prints a log with different color and initial string depending on the severity level.
 /// @param severity Severity level (ERR, INF, WNG).
