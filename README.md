@@ -154,6 +154,12 @@ C_SEVERITY_LOG_API void SetSeverityLogPrintTimeStatus(bool time_status);
 
 Where **time_status** is a boolean variable that tells whether or not the date is meant to be shown preceding every log message.
 
+When it comes to file name logging, the name of the executable file calling log functions can be displayed as well by simpy using **SetSeverityLogPrintExeNameStatus**:
+
+```c
+C_SEVERITY_LOG_API void SetSeverityLogPrintExeNameStatus(bool exe_name_status);
+```
+
 For reference, a proper API usage example has been provided on the [test source file](https://github.com/JonMS95/C_Severity_Log/blob/main/Tests/Source_files/main.c).
 An example of CLI usage is provided in the [**Shell_files/test.sh**](https://github.com/JonMS95/C_Severity_Log/blob/main/Shell_files/test.sh) file.
 
