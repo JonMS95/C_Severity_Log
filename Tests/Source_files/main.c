@@ -1,10 +1,27 @@
+/************************************/
+/******** Include statements ********/
+/************************************/
+
 #include "SeverityLog_api.h"
+
+/************************************/
+
+/***********************************/
+/******** Define statements ********/
+/***********************************/
+
+#define TEST_LOG_BUFFER_SIZE    1000
 
 #define TEST_MSG_ERR "this is an ERROR message."
 #define TEST_MSG_INF "this is an INFORMATION message."
 #define TEST_MSG_WNG "this is a WARNING message."
 #define TEST_MSG_DBG "this is a DEBUG message."
 
+/***********************************/
+
+/*************************************/
+/******* Function definitions ********/
+/*************************************/
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// @brief For a given severity log mask, check that only the specified messages are shown.
@@ -44,8 +61,7 @@ int main()
     int test_result = 0;
     int test_result_log_mask = 0;
 
-    SetSeverityLogPrintTimeStatus(true);
-    SetSeverityLogPrintExeNameStatus(true);
+    SeverityLogInit(TEST_LOG_BUFFER_SIZE, SVRTY_LOG_MASK_ALL, true, true);
 
     for(int i = 0; i < (sizeof(severity_log_masks) / sizeof(severity_log_masks[0])); i++)
     {
@@ -72,11 +88,11 @@ int main()
         SetSeverityLogMask(SVRTY_LOG_MASK_OFF);
     }
 
-    SetSeverityLogMask(SVRTY_LOG_MASK_INF);
+    SetSeverityLogMask(SVRTY_LOG_MASK_ALL);
 
     LOG_INF("TESTS SUCCEDED");
 
-    SetSeverityLogMask(SVRTY_LOG_MASK_OFF);
-
     return 0;
 }
+
+/*************************************/
