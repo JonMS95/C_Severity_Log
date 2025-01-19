@@ -38,6 +38,13 @@ extern "C" {
 /******** Function prototypes ********/
 /*************************************/
 
+//////////////////////////////////////////////////////////////////////////////////////
+/// @brief Sets severity log buffer payload size.
+/// @param buffer_size Target payload size (a trailing zero is used to ensure safety).
+/// @return 0 if allocation was successful, < 0 otherwise.
+//////////////////////////////////////////////////////////////////////////////////////
+C_SEVERITY_LOG_API int SeverityLogInitBuffer(unsigned long buffer_size);
+
 /////////////////////////////////////////////////////
 /// @brief Sets severity log mask to the input value.
 /// @param mask Target severity log mask.
@@ -55,6 +62,19 @@ C_SEVERITY_LOG_API void SetSeverityLogPrintTimeStatus(bool time_status);
 /// @param exe_name_status Target status value (T/F).
 /////////////////////////////////////////////////////////////
 C_SEVERITY_LOG_API void SetSeverityLogPrintExeNameStatus(bool exe_name_status);
+
+/////////////////////////////////////////////////////////////
+/// @brief Sets multiple severity log parameters at once.
+/// @param buffer_size Target buffer payload size.
+/// @param severity_level_mask Target severity level(s) mask.
+/// @param print_time Print log's time and date (T/F).
+/// @param print_exe_file Print logging file's name (T/F).
+/// @return 0 if succeeded, < 0 otherwise.
+/////////////////////////////////////////////////////////////
+C_SEVERITY_LOG_API int SeverityLogInit( unsigned long buffer_size   ,
+                                        int severity_level_mask     ,
+                                        bool print_time             ,
+                                        bool print_exe_file         );
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Prints a log with different color and initial string depending on the severity level.
