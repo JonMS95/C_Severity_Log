@@ -10,6 +10,7 @@
 #include <execinfo.h>
 #include <stdlib.h>
 #include <libgen.h>
+#include <signal.h>
 #include "SeverityLog_api.h"
 
 /************************************/
@@ -24,6 +25,7 @@
 
 #define SVRTY_MSG_INIT      "SeverityLog has been properly initialized."
 #define SVRTY_MSG_CLEANUP   "Freeing SeverityLog's resources."
+#define SVRTY_MSG_SIGNAL    "Received <%s> signal."
 
 #define SVRTY_LOG_STR_DEFAULT_SIZE  10000
 
@@ -73,19 +75,69 @@ static bool     print_exe_file_name     = false;
 /**** Private function prototypes ****/
 /*************************************/
 
+__attribute__((constructor)) static void SeverityLogLoad(void);
+__attribute__((destructor)) static void SeverityLogUnload(void);
+
+static void SeverityLogHandleSignal(int signal_number);
+static void SeverityLogSetupSignalHandlers(void);
+
 static void ChangeSeverityColor(char* log_string, int severity);
 static void ResetSeverityColor(char* log_string);
 static void PrintSeverityLevel(char* log_string, int severity);
 static void PrintTime(char* log_string);
 static void PrintCallingExeFileName(char* log_string);
-static void SeverityLogBufferCleanup(void);
 static int CheckSeverityLogMask(int severity);
+static void SeverityLogCleanup(void);
 
 /*************************************/
 
 /*************************************/
 /******* Function definitions ********/
 /*************************************/
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+/// @brief Function to be called when current library is loaded. Sets up common signal handler.
+/////////////////////////////////////////////////////////////////////////////////////////////// 
+__attribute__((constructor)) static void SeverityLogLoad(void)
+{
+    SeverityLogSetupSignalHandlers();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+/// @brief Function to be called when current library is loaded. Performs resources cleanup.
+////////////////////////////////////////////////////////////////////////////////////////////
+__attribute__((destructor)) static void SeverityLogUnload(void)
+{
+    SeverityLogCleanup();
+}
+
+////////////////////////////////////////////////////////////
+/// @brief Common signal handler. Executed cleanup function.
+/// @param signal_number Target signal number.
+////////////////////////////////////////////////////////////
+static void SeverityLogHandleSignal(int signal_number)
+{
+    LOG_WNG(SVRTY_MSG_SIGNAL, strsignal(signal_number));
+    SeverityLogCleanup();
+}
+
+/////////////////////////////////////////////////////
+/// @brief Sets signal handler for different signals.
+/////////////////////////////////////////////////////
+static void SeverityLogSetupSignalHandlers(void)
+{
+    struct sigaction sa;
+    sa.sa_handler = SeverityLogHandleSignal;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+
+    sigaction(SIGINT, &sa, NULL);  // Ctrl+C
+    sigaction(SIGTERM, &sa, NULL); // Termination request
+    sigaction(SIGHUP, &sa, NULL);  // Terminal closed
+    sigaction(SIGQUIT, &sa, NULL); // Ctrl+'\'
+    // sigaction(SIGPIPE, &sa, NULL); // Broken pipe
+    // sigaction(SIGALRM, &sa, NULL); // Timer expiration
+}
 
 /////////////////////////////////////////////////////////////
 /// @brief Changes log color depending on the severity level.
@@ -143,7 +195,7 @@ static void PrintSeverityLevel(char* log_string, int severity)
 /// @param buffer_size Target payload size (a trailing zero is used to ensure safety).
 /// @return 0 if allocation was successful, < 0 otherwise.
 //////////////////////////////////////////////////////////////////////////////////////
-int SeverityLogInitBuffer(unsigned long buffer_size)
+int SetSeverityLogBufferSize(unsigned long buffer_size)
 {
     if(buffer_size <= 0)
         buffer_size = SVRTY_LOG_STR_DEFAULT_SIZE;
@@ -151,12 +203,12 @@ int SeverityLogInitBuffer(unsigned long buffer_size)
     log_str_payload_size = buffer_size + 1;
 
     if(log_str_buffer == NULL)
-    {
         log_str_buffer = (char*)calloc(log_str_payload_size, sizeof(char));
+    else
+        log_str_buffer = (char*)realloc(log_str_buffer, log_str_payload_size * sizeof(char));
 
-        if(log_str_buffer == NULL)
+    if(log_str_buffer == NULL)
             return SVRTY_LOG_ALLOCATION_ERR;
-    }
 
     return SVRTY_LOG_SUCCESS;
 }
@@ -266,17 +318,6 @@ static void PrintCallingExeFileName(char* log_string)
         free(symbols);
 }
 
-//////////////////////////////////////////////////////////////////
-/// @brief Deallocates previously allocated heap-memory resources.
-//////////////////////////////////////////////////////////////////
-static void SeverityLogBufferCleanup(void)
-{
-    LOG_DBG(SVRTY_MSG_CLEANUP);
-
-    if(log_str_buffer)
-        free(log_str_buffer);
-}
-
 /////////////////////////////////////////////////////////////
 /// @brief Sets multiple severity log parameters at once.
 /// @param buffer_size Target buffer payload size.
@@ -289,9 +330,7 @@ int SeverityLogInit(unsigned long buffer_size, int severity_level_mask, bool pri
 {
     is_initialized = true;
 
-    atexit(SeverityLogBufferCleanup);
-
-    int set_buffer_size = SeverityLogInitBuffer(buffer_size);
+    int set_buffer_size = SetSeverityLogBufferSize(buffer_size);
     
     if(set_buffer_size < 0)
         return set_buffer_size;
@@ -303,6 +342,19 @@ int SeverityLogInit(unsigned long buffer_size, int severity_level_mask, bool pri
     LOG_DBG(SVRTY_MSG_INIT);
 
     return SVRTY_LOG_SUCCESS;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+/// @brief Performs resources cleanup for current library (frees log buffer).
+/////////////////////////////////////////////////////////////////////////////
+static void SeverityLogCleanup(void)
+{
+    if(!log_str_buffer)
+        return;
+    
+    LOG_DBG(SVRTY_MSG_CLEANUP);
+    free(log_str_buffer);
+    log_str_buffer = NULL;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -319,7 +371,7 @@ int SeverityLog(int severity, const char* format, ...)
 
     if(log_str_buffer == NULL)
     {
-        int init_log_buffer = SeverityLogInitBuffer(log_str_payload_size);
+        int init_log_buffer = SetSeverityLogBufferSize(log_str_payload_size);
 
         if(init_log_buffer < 0)
             return init_log_buffer;
