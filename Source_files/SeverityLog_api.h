@@ -43,7 +43,7 @@ extern "C" {
 /// @param buffer_size Target payload size (a trailing zero is used to ensure safety).
 /// @return 0 if allocation was successful, < 0 otherwise.
 //////////////////////////////////////////////////////////////////////////////////////
-C_SEVERITY_LOG_API int SeverityLogInitBuffer(unsigned long buffer_size);
+C_SEVERITY_LOG_API int SetSeverityLogBufferSize(unsigned long buffer_size);
 
 /////////////////////////////////////////////////////
 /// @brief Sets severity log mask to the input value.
