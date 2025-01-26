@@ -64,7 +64,7 @@
 
 static bool     is_initialized          = false;
 static char*    log_str_buffer          = NULL;
-static int      log_str_payload_size    = SVRTY_LOG_STR_DEFAULT_SIZE;
+static int      log_str_payload_size    = SVRTY_LOG_STR_DEFAULT_SIZE + 1;
 static int      severity_log_mask       = SVRTY_LOG_MASK_EIW;
 static bool     print_time_status       = false;
 static bool     print_exe_file_name     = false;
@@ -81,11 +81,11 @@ __attribute__((destructor)) static void SeverityLogUnload(void);
 static void SeverityLogHandleSignal(int signal_number);
 static void SeverityLogSetupSignalHandlers(void);
 
-static void ChangeSeverityColor(char* log_string, int severity);
-static void ResetSeverityColor(char* log_string);
-static void PrintSeverityLevel(char* log_string, int severity);
-static void PrintTime(char* log_string);
-static void PrintCallingExeFileName(char* log_string);
+static void ChangeSeverityColor(int severity);
+static void ResetSeverityColor(void);
+static void PrintSeverityLevel(int severity);
+static void PrintTime(void);
+static void PrintCallingExeFileName(void);
 static int CheckSeverityLogMask(int severity);
 static void SeverityLogCleanup(void);
 
@@ -143,24 +143,29 @@ static void SeverityLogSetupSignalHandlers(void)
 /// @brief Changes log color depending on the severity level.
 /// @param severity Severity level (ERR, INF, WNG, DBG)
 /////////////////////////////////////////////////////////////
-static void ChangeSeverityColor(char* log_string, int severity)
+static void ChangeSeverityColor(int severity)
 {
-    snprintf(log_string, log_str_payload_size - strlen(log_string), SVRTY_CHG_CLR, (SVRTY_CLR_BASE + severity));
+    snprintf(   (log_str_buffer + strlen(log_str_buffer))       ,
+                (log_str_payload_size - strlen(log_str_buffer)) ,
+                SVRTY_CHG_CLR                                   ,
+                (SVRTY_CLR_BASE + severity)                     );
 }
 
 ///////////////////////////////////////
 /// @brief Resets log color to default.
 ///////////////////////////////////////
-static void ResetSeverityColor(char* log_string)
+static void ResetSeverityColor(void)
 {
-    snprintf(log_string, log_str_payload_size - strlen(log_string), SVRTY_RST_CLR);
+    snprintf(   (log_str_buffer + strlen(log_str_buffer))       ,
+                (log_str_payload_size - strlen(log_str_buffer)) ,
+                SVRTY_RST_CLR                                   );
 }
 
 ///////////////////////////////////////////////////////////////
 /// @brief Prints a string at the beginning of the log message.
 /// @param severity Severity level (ERR, INF, WNG, DBG)
 ///////////////////////////////////////////////////////////////
-static void PrintSeverityLevel(char* log_string, int severity)
+static void PrintSeverityLevel(int severity)
 {
     char* severity_level_string = SVRTY_EMPTY_STR;
 
@@ -187,7 +192,10 @@ static void PrintSeverityLevel(char* log_string, int severity)
     }
 
     if(strlen(severity_level_string) > 0)
-        snprintf(log_string, log_str_payload_size - strlen(log_string), "%s", severity_level_string);
+        snprintf(   (log_str_buffer + strlen(log_str_buffer))       ,
+                    (log_str_payload_size - strlen(log_str_buffer)) ,
+                    "%s"                                            ,
+                    severity_level_string                           );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -200,12 +208,12 @@ int SetSeverityLogBufferSize(unsigned long buffer_size)
     if(buffer_size <= 0)
         buffer_size = SVRTY_LOG_STR_DEFAULT_SIZE;
 
-    log_str_payload_size = buffer_size + 1;
+    log_str_payload_size = buffer_size;
 
     if(log_str_buffer == NULL)
-        log_str_buffer = (char*)calloc(log_str_payload_size, sizeof(char));
+        log_str_buffer = (char*)calloc(buffer_size + 1, sizeof(char));
     else
-        log_str_buffer = (char*)realloc(log_str_buffer, log_str_payload_size * sizeof(char));
+        log_str_buffer = (char*)realloc(log_str_buffer, (buffer_size + 1) * sizeof(char));
 
     if(log_str_buffer == NULL)
             return SVRTY_LOG_ALLOCATION_ERR;
@@ -248,7 +256,7 @@ void SetSeverityLogPrintTimeStatus(bool time_status)
 ////////////////////////////////////////////////////////////////////////////////////////// 
 /// @brief If print_time_status == true, it prints time (includes date) in local timezone.
 //////////////////////////////////////////////////////////////////////////////////////////
-static void PrintTime(char* log_string)
+static void PrintTime(void)
 {
     if(!print_time_status)
         return;
@@ -264,7 +272,11 @@ static void PrintTime(char* log_string)
 
     char time_str[SVRTY_TIME_DATE_SIZE];
     strftime(time_str, sizeof(time_str), SVRTY_TIME_DATE_FORMAT, time_info);
-    snprintf(log_string, log_str_payload_size - strlen(log_string), "%s", time_str);
+    
+    snprintf(   (log_str_buffer + strlen(log_str_buffer))       ,
+                (log_str_payload_size - strlen(log_str_buffer)) ,
+                "%s"                                            ,
+                time_str                                        );
 }
 
 /////////////////////////////////////////////////////////////
@@ -279,7 +291,7 @@ void SetSeverityLogPrintExeNameStatus(bool exe_name_status)
 ///////////////////////////////////////////////////////////////////////////////////// 
 /// @brief If print_exe_file_name == true, it print the calling executable file name.
 /////////////////////////////////////////////////////////////////////////////////////
-static void PrintCallingExeFileName(char* log_string)
+static void PrintCallingExeFileName(void)
 {
     if(!print_exe_file_name)
         return;
@@ -311,7 +323,10 @@ static void PrintCallingExeFileName(char* log_string)
                 file_name += SVRTY_EXE_FILE_SO_PREFIX_IDX;
         }
 
-        snprintf(log_string, log_str_payload_size - strlen(log_string), SVRTY_EXE_FILE_FORMAT, file_name);
+        snprintf(   (log_str_buffer + strlen(log_str_buffer))       ,
+                    (log_str_payload_size - strlen(log_str_buffer)) ,
+                    SVRTY_EXE_FILE_FORMAT                           ,
+                    file_name                                       );
     }
 
     if (symbols != NULL)
@@ -385,10 +400,10 @@ int SeverityLog(int severity, const char* format, ...)
     va_list args;
     int done;
 
-    ChangeSeverityColor(log_str_buffer + strlen(log_str_buffer), severity);
-    PrintTime(log_str_buffer + strlen(log_str_buffer));
-    PrintSeverityLevel(log_str_buffer + strlen(log_str_buffer), severity);
-    PrintCallingExeFileName(log_str_buffer + strlen(log_str_buffer));
+    ChangeSeverityColor(severity);
+    PrintTime();
+    PrintSeverityLevel(severity);
+    PrintCallingExeFileName();
 
     va_start(args, format);
     done = vsnprintf(   (log_str_buffer + strlen(log_str_buffer))       ,
@@ -397,11 +412,17 @@ int SeverityLog(int severity, const char* format, ...)
                         args                                            );
     va_end(args);
 
-    ResetSeverityColor(log_str_buffer + strlen(log_str_buffer));
-    strcat(log_str_buffer, SVRTY_CRLF);
+    ResetSeverityColor();
+    
+    snprintf(   (log_str_buffer + strlen(log_str_buffer)),
+                (log_str_payload_size - strlen(log_str_buffer)),
+                "%s",
+                SVRTY_CRLF);
+    
     log_str_buffer[strlen(log_str_buffer)] = SVRTY_STR_END;
 
     printf("%s", log_str_buffer);
+    fflush(stdout);
 
     memset(log_str_buffer, 0, strlen(log_str_buffer));
 
