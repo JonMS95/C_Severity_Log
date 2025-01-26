@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <libgen.h>
 #include <signal.h>
+#include <syslog.h>
 #include "SeverityLog_api.h"
 
 /************************************/
@@ -68,6 +69,7 @@ static int      log_str_payload_size    = SVRTY_LOG_STR_DEFAULT_SIZE + 1;
 static int      severity_log_mask       = SVRTY_LOG_MASK_EIW;
 static bool     print_time_status       = false;
 static bool     print_exe_file_name     = false;
+static bool     log_to_syslog           = false;
 
 /***********************************/
 
@@ -117,7 +119,7 @@ __attribute__((destructor)) static void SeverityLogUnload(void)
 ////////////////////////////////////////////////////////////
 static void SeverityLogHandleSignal(int signal_number)
 {
-    LOG_WNG(SVRTY_MSG_SIGNAL, strsignal(signal_number));
+    SVRTY_LOG_WNG(SVRTY_MSG_SIGNAL, strsignal(signal_number));
     SeverityLogCleanup();
 }
 
@@ -288,6 +290,13 @@ void SetSeverityLogPrintExeNameStatus(bool exe_name_status)
     print_exe_file_name = exe_name_status;
 }
 
+void SetSeverityLogSyslogStatus(bool log_to_syslog_status)
+{
+    openlog(NULL, LOG_PID, LOG_USER);
+
+    log_to_syslog = log_to_syslog_status;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////// 
 /// @brief If print_exe_file_name == true, it print the calling executable file name.
 /////////////////////////////////////////////////////////////////////////////////////
@@ -333,6 +342,45 @@ static void PrintCallingExeFileName(void)
         free(symbols);
 }
 
+int SeverityLogGetSyslogMsgType(int severity)
+{
+    int syslog_msg_type = SVRTY_LOG_WNG_SILENT_LVL;
+
+    switch(severity)
+    {
+        case SVRTY_LVL_ERR:
+            syslog_msg_type = LOG_ERR;
+        break;
+
+        case SVRTY_LVL_INF:
+            syslog_msg_type = LOG_INFO;
+        break;
+
+        case SVRTY_LVL_WNG:
+            syslog_msg_type = LOG_WARNING;
+        break;
+
+        case SVRTY_LVL_DBG:
+            syslog_msg_type = LOG_DEBUG;
+        break;
+
+        default:
+        break;
+    }
+
+    return syslog_msg_type;
+}
+
+void SeverityLogSyslog(int severity, char* log_str_buffer_start)
+{
+    int syslog_msg_type = SeverityLogGetSyslogMsgType(severity);
+    
+    if(syslog_msg_type < 0)
+        return;
+    
+    syslog(syslog_msg_type, "%s", log_str_buffer_start);
+}
+
 /////////////////////////////////////////////////////////////
 /// @brief Sets multiple severity log parameters at once.
 /// @param buffer_size Target buffer payload size.
@@ -353,8 +401,9 @@ int SeverityLogInit(unsigned long buffer_size, int severity_level_mask, bool pri
     SetSeverityLogMask(severity_level_mask);
     SetSeverityLogPrintTimeStatus(print_time);
     SetSeverityLogPrintExeNameStatus(print_exe_file);
+    SetSeverityLogSyslogStatus(true);
 
-    LOG_DBG(SVRTY_MSG_INIT);
+    SVRTY_LOG_DBG(SVRTY_MSG_INIT);
 
     return SVRTY_LOG_SUCCESS;
 }
@@ -364,10 +413,13 @@ int SeverityLogInit(unsigned long buffer_size, int severity_level_mask, bool pri
 /////////////////////////////////////////////////////////////////////////////
 static void SeverityLogCleanup(void)
 {
+    if(log_to_syslog)
+        closelog();
+
     if(!log_str_buffer)
         return;
     
-    LOG_DBG(SVRTY_MSG_CLEANUP);
+    SVRTY_LOG_DBG(SVRTY_MSG_CLEANUP);
     free(log_str_buffer);
     log_str_buffer = NULL;
 }
@@ -402,6 +454,9 @@ int SeverityLog(int severity, const char* format, ...)
 
     ChangeSeverityColor(severity);
     PrintTime();
+
+    int log_len_color_date = strlen(log_str_buffer);
+
     PrintSeverityLevel(severity);
     PrintCallingExeFileName();
 
@@ -411,6 +466,10 @@ int SeverityLog(int severity, const char* format, ...)
                         format                                          ,
                         args                                            );
     va_end(args);
+
+    log_str_buffer[strlen(log_str_buffer)] = SVRTY_STR_END;
+
+    SeverityLogSyslog(severity, log_str_buffer + log_len_color_date);
 
     ResetSeverityColor();
     
