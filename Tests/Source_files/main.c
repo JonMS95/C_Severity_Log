@@ -18,10 +18,10 @@
 #define TEST_MSG_DBG "this is a DEBUG message."
 
 #define TEST_MSG_HEADER     "******** Test %d ********"
-#define TEST_MSG_RESULT     "Test %d %s.\r\n"
+#define TEST_MSG_RESULT     "Test %d %s.\n"
 #define TEST_MSG_FAILED     "failed"
 #define TEST_MSG_SUCCEEDED  "succeeded"
-#define TEST_MSG_FAILURE    "TESTS FAILED.\r\n"
+#define TEST_MSG_FAILURE    "TESTS FAILED.\n"
 #define TEST_MSG_SUCCESS    "TESTS SUCCEDED"
 
 /***********************************/
@@ -41,10 +41,10 @@ int PrintAllMessages(int severity_log_mask)
 
     int test_result = 0;
     
-    int test_err_bit = LOG_ERR(TEST_MSG_ERR);
-    int test_inf_bit = LOG_INF(TEST_MSG_INF);
-    int test_wng_bit = LOG_WNG(TEST_MSG_WNG);
-    int test_dbg_bit = LOG_DBG(TEST_MSG_DBG);
+    int test_err_bit = SVRTY_LOG_ERR(TEST_MSG_ERR);
+    int test_inf_bit = SVRTY_LOG_INF(TEST_MSG_INF);
+    int test_wng_bit = SVRTY_LOG_WNG(TEST_MSG_WNG);
+    int test_dbg_bit = SVRTY_LOG_DBG(TEST_MSG_DBG);
 
     SetSeverityLogMask(SVRTY_LOG_MASK_OFF);
 
@@ -74,7 +74,7 @@ int main()
     {
         SetSeverityLogMask(SVRTY_LOG_MASK_INF);
 
-        LOG_INF(TEST_MSG_HEADER, i + 1);
+        SVRTY_LOG_INF(TEST_MSG_HEADER, i + 1);
 
         SetSeverityLogMask(SVRTY_LOG_MASK_OFF);
 
@@ -95,9 +95,9 @@ int main()
         SetSeverityLogMask(SVRTY_LOG_MASK_OFF);
     }
 
-    SetSeverityLogMask(SVRTY_LOG_MASK_ALL);
+    SetSeverityLogMask(SVRTY_LOG_MASK_INF);
 
-    LOG_INF(TEST_MSG_SUCCESS);
+    SVRTY_LOG_INF(TEST_MSG_SUCCESS);
 
     return 0;
 }
