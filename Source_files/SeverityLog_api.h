@@ -85,10 +85,10 @@ C_SEVERITY_LOG_API int SeverityLogInit( unsigned long buffer_size   ,
 //////////////////////////////////////////////////////////////////////////////////////////////////
 C_SEVERITY_LOG_API int SeverityLog(int severity, const char* format, ...);
 
-#define LOG_ERR(...) SeverityLog(SVRTY_LVL_ERR, __VA_ARGS__)
-#define LOG_INF(...) SeverityLog(SVRTY_LVL_INF, __VA_ARGS__)
-#define LOG_WNG(...) SeverityLog(SVRTY_LVL_WNG, __VA_ARGS__)
-#define LOG_DBG(...) SeverityLog(SVRTY_LVL_DBG, __VA_ARGS__)
+#define SVRTY_LOG_ERR(...) SeverityLog(SVRTY_LVL_ERR, __VA_ARGS__)
+#define SVRTY_LOG_INF(...) SeverityLog(SVRTY_LVL_INF, __VA_ARGS__)
+#define SVRTY_LOG_WNG(...) SeverityLog(SVRTY_LVL_WNG, __VA_ARGS__)
+#define SVRTY_LOG_DBG(...) SeverityLog(SVRTY_LVL_DBG, __VA_ARGS__)
 
 /*************************************/
 
