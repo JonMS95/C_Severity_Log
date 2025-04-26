@@ -11,37 +11,37 @@
     />
     <!-- Directory structure -->
     <Directories>
-        <Dynamic_libraries/>
+        <lib/>
         <API/>
-        <Tests>
-            <Dependency_files>
-                <Dynamic_libraries/>
-                <Header_files/>
-            </Dependency_files>
-            <Executable_files/>
-        </Tests>
+        <test>
+            <deps>
+                <lib/>
+                <inc/>
+            </deps>
+            <exe/>
+        </test>
     </Directories>
 
     <!-- Common shell files location -->
     <Common_shell_files
         version_major="1"
-        version_minor="2"
-        version_mode="RELEASE"
+        version_minor="3"
+        version_mode="DEBUG"
         local_path="~/Desktop/scripts/C/C_Common_shell_files"
         URL="https://github.com/JonMS95/C_Common_shell_files"
     />
 
     <!-- Tests -->
     <!-- Paths to dependency files for the testing executable. -->
-    <Tests>
-        <Dependencies Dest="Tests/Dependency_files">
+    <test>
+        <deps Dest="test/deps">
             <C_Severity_Log
                 version_major="1"
                 version_minor="4"
                 version_mode="DEBUG"
-                local_path="~/Desktop/scripts/C/C_Severity_Log"
+                local_path="."
                 URL="https://github.com/JonMS95/C_Severity_Log"
             />
-        </Dependencies>
-    </Tests>
+        </deps>
+    </test>
 </config>
