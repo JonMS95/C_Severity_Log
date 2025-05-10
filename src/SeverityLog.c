@@ -99,8 +99,11 @@ static void ResetSeverityColor(void);
 static void PrintSeverityLevel(const int severity);
 static void PrintTime(void);
 static void PrintCallingExeFileName(void);
+static int  SeverityLogGetSyslogMsgType(const int severity);
+static void SeverityLogSyslog(const int severity, const size_t buffer_len);
 static int  CheckSeverityLogMask(const int severity);
 static void SeverityLogCleanup(void);
+static void SeverityLogTokenizeCRLF();
 
 /*************************************/
 
@@ -309,6 +312,10 @@ void SetSeverityLogPrintExeNameStatus(const bool exe_name_status)
     print_exe_file_name = exe_name_status;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////
+/// @brief Set syslog print variable status (tells whether messages should be logged to syslog).
+/// @param log_to_syslog_status Target status value (T/F).
+////////////////////////////////////////////////////////////////////////////////////////////////
 void SetSeverityLogSyslogStatus(const bool log_to_syslog_status)
 {
     openlog(NULL, LOG_PID, LOG_USER);
@@ -363,7 +370,12 @@ static void PrintCallingExeFileName(void)
         free(symbols);
 }
 
-int SeverityLogGetSyslogMsgType(const int severity)
+////////////////////////////////////////////////////////////////////////////////
+/// @brief Returns associated syslog message type based on given severity level.
+/// @param severity Provided sverity log level.
+/// @return Syslog message type.
+////////////////////////////////////////////////////////////////////////////////
+static int SeverityLogGetSyslogMsgType(const int severity)
 {
     int syslog_msg_type = SVRTY_LOG_WNG_SILENT_LVL;
 
@@ -392,7 +404,12 @@ int SeverityLogGetSyslogMsgType(const int severity)
     return syslog_msg_type;
 }
 
-void SeverityLogSyslog(const int severity, const size_t buffer_len)
+//////////////////////////////////////////////////////////////////////////////
+/// @brief Logs to syslog or journal (using syslog funcitons).
+/// @param severity Severity level.
+/// @param buffer_len Target buffer length (required because of tokenization).
+//////////////////////////////////////////////////////////////////////////////
+static void SeverityLogSyslog(const int severity, const size_t buffer_len)
 {
     int syslog_msg_type = SeverityLogGetSyslogMsgType(severity);
     
@@ -460,6 +477,9 @@ static void SeverityLogCleanup(void)
     log_str_buffer = NULL;
 }
 
+///////////////////////////////////////////////////////////////////////
+/// @brief Tokenizes log buffer using "\n" and/or "\r\n" as delimiters.
+///////////////////////////////////////////////////////////////////////
 static void SeverityLogTokenizeCRLF(void)
 {
     size_t cur_log_str_buffer_len = strlen(log_str_buffer);

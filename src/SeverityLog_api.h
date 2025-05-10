@@ -63,6 +63,12 @@ C_SEVERITY_LOG_API void SetSeverityLogPrintTimeStatus(const bool time_status);
 /////////////////////////////////////////////////////////////
 C_SEVERITY_LOG_API void SetSeverityLogPrintExeNameStatus(const bool exe_name_status);
 
+////////////////////////////////////////////////////////////////////////////////////////////////
+/// @brief Set syslog print variable status (tells whether messages should be logged to syslog).
+/// @param log_to_syslog_status Target status value (T/F).
+////////////////////////////////////////////////////////////////////////////////////////////////
+C_SEVERITY_LOG_API void SetSeverityLogSyslogStatus(const bool log_to_syslog_status);
+
 /////////////////////////////////////////////////////////////
 /// @brief Sets multiple severity log parameters at once.
 /// @param buffer_size Target buffer payload size.
