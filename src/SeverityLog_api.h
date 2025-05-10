@@ -49,19 +49,19 @@ C_SEVERITY_LOG_API int SetSeverityLogBufferSize(unsigned long buffer_size);
 /// @brief Sets severity log mask to the input value.
 /// @param mask Target severity log mask.
 /////////////////////////////////////////////////////
-C_SEVERITY_LOG_API void SetSeverityLogMask(int mask);
+C_SEVERITY_LOG_API void SetSeverityLogMask(const int mask);
 
 ///////////////////////////////////////////////////////////
 /// @brief Set value of print_time_status private variable.
 /// @param time_status Target status value (T/F).
 ///////////////////////////////////////////////////////////
-C_SEVERITY_LOG_API void SetSeverityLogPrintTimeStatus(bool time_status);
+C_SEVERITY_LOG_API void SetSeverityLogPrintTimeStatus(const bool time_status);
 
 /////////////////////////////////////////////////////////////
 /// @brief Set value of print_exe_file_name private variable.
 /// @param exe_name_status Target status value (T/F).
 /////////////////////////////////////////////////////////////
-C_SEVERITY_LOG_API void SetSeverityLogPrintExeNameStatus(bool exe_name_status);
+C_SEVERITY_LOG_API void SetSeverityLogPrintExeNameStatus(const bool exe_name_status);
 
 /////////////////////////////////////////////////////////////
 /// @brief Sets multiple severity log parameters at once.
@@ -71,10 +71,10 @@ C_SEVERITY_LOG_API void SetSeverityLogPrintExeNameStatus(bool exe_name_status);
 /// @param print_exe_file Print logging file's name (T/F).
 /// @return 0 if succeeded, < 0 otherwise.
 /////////////////////////////////////////////////////////////
-C_SEVERITY_LOG_API int SeverityLogInit( unsigned long buffer_size   ,
-                                        int severity_level_mask     ,
-                                        bool print_time             ,
-                                        bool print_exe_file         );
+C_SEVERITY_LOG_API int SeverityLogInit( const unsigned long buffer_size ,
+                                        const int severity_level_mask   ,
+                                        const bool print_time           ,
+                                        const bool print_exe_file       );
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Prints a log with different color and initial string depending on the severity level.
@@ -83,7 +83,7 @@ C_SEVERITY_LOG_API int SeverityLogInit( unsigned long buffer_size   ,
 /// @param  Variable Variable number of arguments. Data that is meant to be formatted and printed.
 /// @return < 0 if any error happened, number of characters written to stream otherwise.
 //////////////////////////////////////////////////////////////////////////////////////////////////
-C_SEVERITY_LOG_API int SeverityLog(int severity, const char* format, ...);
+C_SEVERITY_LOG_API int SeverityLog(const int severity, const char* restrict format, ...);
 
 #define SVRTY_LOG_ERR(...) SeverityLog(SVRTY_LVL_ERR, __VA_ARGS__)
 #define SVRTY_LOG_INF(...) SeverityLog(SVRTY_LVL_INF, __VA_ARGS__)
