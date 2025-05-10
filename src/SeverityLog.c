@@ -318,7 +318,10 @@ void SetSeverityLogPrintExeNameStatus(const bool exe_name_status)
 ////////////////////////////////////////////////////////////////////////////////////////////////
 void SetSeverityLogSyslogStatus(const bool log_to_syslog_status)
 {
-    openlog(NULL, LOG_PID, LOG_USER);
+    if(log_to_syslog_status)
+        openlog(NULL, LOG_PID, LOG_USER);
+    else
+        closelog();
 
     log_to_syslog = log_to_syslog_status;
 }
@@ -411,6 +414,9 @@ static int SeverityLogGetSyslogMsgType(const int severity)
 //////////////////////////////////////////////////////////////////////////////
 static void SeverityLogSyslog(const int severity, const size_t buffer_len)
 {
+    if(!log_to_syslog)
+        return;
+
     int syslog_msg_type = SeverityLogGetSyslogMsgType(severity);
     
     if(syslog_msg_type < 0)
@@ -442,7 +448,11 @@ static void SeverityLogSyslog(const int severity, const size_t buffer_len)
 /// @param print_exe_file Print logging file's name (T/F).
 /// @return 0 if succeeded, < 0 otherwise.
 /////////////////////////////////////////////////////////////
-int SeverityLogInit(const unsigned long buffer_size, const int severity_level_mask, const bool print_time, const bool print_exe_file)
+int SeverityLogInit(const unsigned long buffer_size ,
+                    const int severity_level_mask   ,
+                    const bool print_time           ,
+                    const bool print_exe_file       ,
+                    const bool log_to_syslog        )
 {
     is_initialized = true;
 
@@ -454,7 +464,7 @@ int SeverityLogInit(const unsigned long buffer_size, const int severity_level_ma
     SetSeverityLogMask(severity_level_mask);
     SetSeverityLogPrintTimeStatus(print_time);
     SetSeverityLogPrintExeNameStatus(print_exe_file);
-    SetSeverityLogSyslogStatus(true);
+    SetSeverityLogSyslogStatus(log_to_syslog);
 
     SVRTY_LOG_DBG(SVRTY_MSG_INIT);
 
