@@ -78,9 +78,10 @@ C_SEVERITY_LOG_API void SetSeverityLogSyslogStatus(const bool log_to_syslog_stat
 /// @return 0 if succeeded, < 0 otherwise.
 /////////////////////////////////////////////////////////////
 C_SEVERITY_LOG_API int SeverityLogInit( const unsigned long buffer_size ,
-                                        const int severity_level_mask   ,
+                                        const int  severity_level_mask  ,
                                         const bool print_time           ,
-                                        const bool print_exe_file       );
+                                        const bool print_exe_file       ,       
+                                        const bool log_to_syslog        );
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Prints a log with different color and initial string depending on the severity level.
