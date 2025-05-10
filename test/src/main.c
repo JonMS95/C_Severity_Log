@@ -17,6 +17,8 @@
 #define TEST_MSG_WNG "this is a WARNING message."
 #define TEST_MSG_DBG "this is a DEBUG message."
 
+#define TEST_MSG_MULTIPLE_LINES "This is line 1\nThis is line 2\r\nThis is line 3"
+
 #define TEST_MSG_HEADER     "******** Test %d ********"
 #define TEST_MSG_RESULT     "Test %d %s.\n"
 #define TEST_MSG_FAILED     "failed"
@@ -54,6 +56,15 @@ int PrintAllMessages(int severity_log_mask)
                       (test_err_bit >= 0 ? 1 : 0)       ;
 
     return test_result;
+}
+
+void PrintMultiLineMessage(void)
+{
+    SetSeverityLogMask(SVRTY_LOG_MASK_ALL);
+
+    SVRTY_LOG_INF(TEST_MSG_MULTIPLE_LINES);
+
+    SetSeverityLogMask(SVRTY_LOG_MASK_OFF);
 }
 
 int main()
@@ -98,6 +109,8 @@ int main()
     SetSeverityLogMask(SVRTY_LOG_MASK_INF);
 
     SVRTY_LOG_INF(TEST_MSG_SUCCESS);
+
+    PrintMultiLineMessage();
 
     return 0;
 }
