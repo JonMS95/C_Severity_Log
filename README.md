@@ -122,10 +122,10 @@ In exchange, the function returns:
 In order to simplify the usage of the **_SeverityLog_** function, some macros have been defined:
 
 ```c
-#define LOG_ERR(...) SeverityLog(SVRTY_LVL_ERR, __VA_ARGS__)
-#define LOG_INF(...) SeverityLog(SVRTY_LVL_INF, __VA_ARGS__)
-#define LOG_WNG(...) SeverityLog(SVRTY_LVL_WNG, __VA_ARGS__)
-#define LOG_DBG(...) SeverityLog(SVRTY_LVL_DBG, __VA_ARGS__)
+#define SVRTY_LOG_ERR(...) SeverityLog(SVRTY_LVL_ERR, __VA_ARGS__)
+#define SVRTY_LOG_INF(...) SeverityLog(SVRTY_LVL_INF, __VA_ARGS__)
+#define SVRTY_LOG_WNG(...) SeverityLog(SVRTY_LVL_WNG, __VA_ARGS__)
+#define SVRTY_LOG_DBG(...) SeverityLog(SVRTY_LVL_DBG, __VA_ARGS__)
 ```
 
 On top of simply logging, the information to be displayed can be restricted depending on its nature:
@@ -160,12 +160,21 @@ When it comes to file name logging, the name of the executable file calling log 
 C_SEVERITY_LOG_API void SetSeverityLogPrintExeNameStatus(bool exe_name_status);
 ```
 
+Many parameters (logging to syslog, among others) can be set by using a single function too:
+
+```c
+C_SEVERITY_LOG_API int SeverityLogInit( const unsigned long buffer_size ,
+                                        const int  severity_level_mask  ,
+                                        const bool print_time           ,
+                                        const bool print_exe_file       ,       
+                                        const bool log_to_syslog        );
+```
+
 For reference, a proper API usage example has been provided on the [test source file](https://github.com/JonMS95/C_Severity_Log/blob/main/Tests/Source_files/main.c).
 An example of CLI usage is provided in the [**Shell_files/test.sh**](https://github.com/JonMS95/C_Severity_Log/blob/main/Shell_files/test.sh) file.
 
 
 ## To do <a id="to-do"></a> ☑️
-- [ ] Make it possible to store the logs in an output file
 - [ ] Fix known bug: format string may include unused formaters without causing any issue, while they should
 
 

@@ -5,11 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.4] [To be released]
+## [2.0] - 11-05-2025
 ### Added
-* SetSeverityLogPrintExeNameStatus: a feature that allows printing the name of the executable file from which the logging function has been called.
+* Settings can now be mofified. Use functions such as SeverityLogInit (read API).
+* Logging to syslog (journal in modern systems) is allowed from now on.
+* Logs composed by multiple lines are allowed now.
+* Directory names have been changed for them to follow new directory/file naming convention.
 
-## [1.3] 31-07-2024
+## [1.3] - 31-07-2024
 ### Added
 * Documentation (license, contribution rules, readme and changelog)
 
