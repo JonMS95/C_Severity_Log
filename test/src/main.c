@@ -12,6 +12,8 @@
 
 #define TEST_LOG_BUFFER_SIZE    1000
 
+#define TEST_LOG_INIT_MASK  0xFF
+
 #define TEST_MSG_ERR "this is an ERROR message."
 #define TEST_MSG_INF "this is an INFORMATION message."
 #define TEST_MSG_WNG "this is a WARNING message."
@@ -81,7 +83,7 @@ int main()
     int test_result = 0;
     int test_result_log_mask = 0;
 
-    SeverityLogInit(TEST_LOG_BUFFER_SIZE, SVRTY_LOG_MASK_ALL, true, true, true, true);
+    SeverityLogInitWithMask(TEST_LOG_BUFFER_SIZE, TEST_LOG_INIT_MASK);
 
     for(int i = 0; i < (sizeof(severity_log_masks) / sizeof(severity_log_masks[0])); i++)
     {
