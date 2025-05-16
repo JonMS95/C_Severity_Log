@@ -166,7 +166,8 @@ Many parameters (logging to syslog, among others) can be set by using a single f
 C_SEVERITY_LOG_API int SeverityLogInit( const unsigned long buffer_size ,
                                         const int  severity_level_mask  ,
                                         const bool print_time           ,
-                                        const bool print_exe_file       ,       
+                                        const bool print_exe_file       ,
+                                        const bool print_TID            ,
                                         const bool log_to_syslog        );
 ```
 

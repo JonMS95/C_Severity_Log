@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1] - 16-05-2025
+### Added
+* Logging thread's TID can now be displayed.
+
+### Changed
+* Syslog/Journal information contains more details (such as severity level as text and executable file's name) now.
+
 ## [2.0] - 11-05-2025
 ### Added
 * Settings can now be modified. Use functions such as SeverityLogInit (read API).
