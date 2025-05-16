@@ -81,7 +81,7 @@ int main()
     int test_result = 0;
     int test_result_log_mask = 0;
 
-    SeverityLogInit(TEST_LOG_BUFFER_SIZE, SVRTY_LOG_MASK_ALL, true, true, true);
+    SeverityLogInit(TEST_LOG_BUFFER_SIZE, SVRTY_LOG_MASK_ALL, true, true, true, true);
 
     for(int i = 0; i < (sizeof(severity_log_masks) / sizeof(severity_log_masks[0])); i++)
     {
