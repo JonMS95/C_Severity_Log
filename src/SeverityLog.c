@@ -42,6 +42,7 @@
 #define SVRTY_LVL_STR_SIZE          7
 #define SVRTY_TIME_DATE_STR_SIZE    128
 #define SVRTY_FILE_NAME_STR_SIZE    100
+#define SVRTY_LOGGING_TID           21
 
 #define SVRTY_STR_ERR       "[ERR] "
 #define SVRTY_STR_INF       "[INF] "
@@ -64,23 +65,29 @@
 #define SVRTY_EXE_FILE_SO_PREFIX_IDX    3
 #define SVRTY_EXE_FILE_FORMAT           "[%s] "
 
+#define SVRTY_TID_FORMAT    "[%#lx] "
+
+#define SVRTY_CLEAN_STR(str)    memset(str, 0, strlen(str))
+
 /***********************************/
 
 /***********************************/
 /******** Private variables ********/
 /***********************************/
 
-static          bool    is_initialized                          = false;
-static __thread char    severity_color_str[SVRTY_CLR_STR_SIZE]  = {0};
-static __thread char    time_date_str[SVRTY_TIME_DATE_STR_SIZE] = {0};
-static __thread char    severity_level_str[SVRTY_LVL_STR_SIZE]  = {0};
-static __thread char    file_name_str[SVRTY_FILE_NAME_STR_SIZE] = {0};
-static __thread char*   log_str_buffer                          = NULL;
+static          bool    is_initialized                          = false                         ;
+static __thread char    severity_color_str[SVRTY_CLR_STR_SIZE]  = {0}                           ;
+static __thread char    time_date_str[SVRTY_TIME_DATE_STR_SIZE] = {0}                           ;
+static __thread char    severity_level_str[SVRTY_LVL_STR_SIZE]  = {0}                           ;
+static __thread char    file_name_str[SVRTY_FILE_NAME_STR_SIZE] = {0}                           ;
+static __thread char    logging_TID[SVRTY_LOGGING_TID]          = {0}                           ;
+static __thread char*   log_str_buffer                          = NULL                          ;
 static          int     log_str_payload_size                    = SVRTY_LOG_STR_DEFAULT_SIZE + 1;
-static          int     severity_log_mask                       = SVRTY_LOG_MASK_EIW;
-static          bool    print_time_status                       = false;
-static          bool    print_exe_file_name                     = false;
-static          bool    log_to_syslog                           = false;
+static          int     severity_log_mask                       = SVRTY_LOG_MASK_EIW            ;
+static          bool    print_time_status                       = false                         ;
+static          bool    print_exe_file_name                     = false                         ;
+static          bool    log_to_syslog                           = false                         ;
+static          bool    log_TID                                 = false                         ;
 
 /***********************************/
 
@@ -161,7 +168,7 @@ static void SeverityLogSetupSignalHandlers(void)
 /////////////////////////////////////////////////////////////
 static void ChangeSeverityColor(const int severity)
 {
-    memset(severity_color_str, 0, strlen(severity_color_str));
+    SVRTY_CLEAN_STR(severity_color_str);
 
     snprintf(   severity_color_str          ,
                 sizeof(severity_color_str)  ,
@@ -174,7 +181,7 @@ static void ChangeSeverityColor(const int severity)
 ///////////////////////////////////////
 static void ResetSeverityColor(void)
 {
-    memset(severity_color_str, 0, strlen(severity_color_str));
+    SVRTY_CLEAN_STR(severity_color_str);
 
     snprintf(   severity_color_str          ,
                 sizeof(severity_color_str)  ,
@@ -212,7 +219,7 @@ static void PrintSeverityLevel(const int severity)
         break;
     }
 
-    memset(severity_level_str, 0, strlen(severity_level_str));
+    SVRTY_CLEAN_STR(severity_level_str);
 
     snprintf(   severity_level_str          ,
                 sizeof(severity_level_str)  ,
@@ -295,7 +302,7 @@ static void PrintTime(void)
     char time_str[SVRTY_TIME_DATE_SIZE];
     strftime(time_str, sizeof(time_str), SVRTY_TIME_DATE_FORMAT, time_info);
     
-    memset(time_date_str, 0, strlen(time_date_str));
+    SVRTY_CLEAN_STR(time_date_str);
 
     snprintf(   time_date_str           ,
                 sizeof(time_date_str)   ,
@@ -310,6 +317,15 @@ static void PrintTime(void)
 void SetSeverityLogPrintExeNameStatus(const bool exe_name_status)
 {
     print_exe_file_name = exe_name_status;
+}
+
+/////////////////////////////////////////////////////
+/// @brief Set value of log_TID private variable.
+/// @param exe_name_status Target status value (T/F).
+/////////////////////////////////////////////////////
+void SetSeverityLogPrintTID(const bool print_TID_status)
+{
+    log_TID = print_TID_status;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -361,7 +377,7 @@ static void PrintCallingExeFileName(void)
                 file_name += SVRTY_EXE_FILE_SO_PREFIX_IDX;
         }
 
-        memset(file_name_str, 0, strlen(file_name_str));
+        SVRTY_CLEAN_STR(file_name_str);
 
         snprintf(   file_name_str           ,
                     sizeof(file_name_str)   ,
@@ -371,6 +387,16 @@ static void PrintCallingExeFileName(void)
 
     if (symbols != NULL)
         free(symbols);
+}
+
+static void PrintTID(void)
+{
+    if(!log_TID)
+        return;
+
+    SVRTY_CLEAN_STR(logging_TID);
+
+    sprintf(logging_TID, SVRTY_TID_FORMAT, pthread_self());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -430,7 +456,12 @@ static void SeverityLogSyslog(const int severity, const size_t buffer_len)
     {
         if (*ptr != SVRTY_STR_END)
         {
-            syslog(syslog_msg_type, "%s", ptr);
+            syslog( syslog_msg_type     ,
+                    "%s%s%s%s"          ,
+                    severity_level_str  ,
+                    file_name_str       ,
+                    logging_TID         ,
+                    ptr                 );
             ptr += (strlen(ptr) + 1);
         }
         else
@@ -452,6 +483,7 @@ int SeverityLogInit(const unsigned long buffer_size ,
                     const int severity_level_mask   ,
                     const bool print_time           ,
                     const bool print_exe_file       ,
+                    const bool print_TID            ,
                     const bool log_to_syslog        )
 {
     is_initialized = true;
@@ -465,6 +497,7 @@ int SeverityLogInit(const unsigned long buffer_size ,
     SetSeverityLogPrintTimeStatus(print_time);
     SetSeverityLogPrintExeNameStatus(print_exe_file);
     SetSeverityLogSyslogStatus(log_to_syslog);
+    SetSeverityLogPrintTID(print_TID);
 
     SVRTY_LOG_DBG(SVRTY_MSG_INIT);
 
@@ -549,6 +582,7 @@ int SeverityLog(const int severity, const char* restrict format, ...)
 
     PrintSeverityLevel(severity);
     PrintCallingExeFileName();
+    PrintTID();
 
     va_start(args, format);
     done = vsnprintf(   (log_str_buffer + strlen(log_str_buffer))       ,
@@ -573,7 +607,15 @@ int SeverityLog(const int severity, const char* restrict format, ...)
     {
         if (*ptr != SVRTY_STR_END)
         {
-            printf("%s%s%s%s%s%s%s", severity_color_str, time_date_str, severity_level_str, file_name_str, ptr, SVRTY_RST_CLR, SVRTY_CRLF);
+            printf( "%s%s%s%s%s%s%s%s"  ,
+                    severity_color_str  ,
+                    time_date_str       ,
+                    severity_level_str  ,
+                    file_name_str       ,
+                    logging_TID         ,
+                    ptr                 ,
+                    SVRTY_RST_CLR       ,
+                    SVRTY_CRLF          );
             fflush(stdout);
             ptr += (strlen(ptr) + 1);
         }
@@ -585,7 +627,7 @@ int SeverityLog(const int severity, const char* restrict format, ...)
 
     ResetSeverityColor();
 
-    memset(log_str_buffer, 0, strlen(log_str_buffer));
+    SVRTY_CLEAN_STR(log_str_buffer);
 
     return done;
 }
