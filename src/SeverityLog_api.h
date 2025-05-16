@@ -63,6 +63,12 @@ C_SEVERITY_LOG_API void SetSeverityLogPrintTimeStatus(const bool time_status);
 /////////////////////////////////////////////////////////////
 C_SEVERITY_LOG_API void SetSeverityLogPrintExeNameStatus(const bool exe_name_status);
 
+/////////////////////////////////////////////////////
+/// @brief Set value of log_TID private variable.
+/// @param exe_name_status Target status value (T/F).
+/////////////////////////////////////////////////////
+C_SEVERITY_LOG_API void SetSeverityLogPrintTID(const bool print_TID_status);
+
 ////////////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Set syslog print variable status (tells whether messages should be logged to syslog).
 /// @param log_to_syslog_status Target status value (T/F).
@@ -75,12 +81,15 @@ C_SEVERITY_LOG_API void SetSeverityLogSyslogStatus(const bool log_to_syslog_stat
 /// @param severity_level_mask Target severity level(s) mask.
 /// @param print_time Print log's time and date (T/F).
 /// @param print_exe_file Print logging file's name (T/F).
+/// @param log_to_syslog Print to syslog/journal (T/F).
+/// @param print_TID Print thread's TID (T/F).
 /// @return 0 if succeeded, < 0 otherwise.
 /////////////////////////////////////////////////////////////
 C_SEVERITY_LOG_API int SeverityLogInit( const unsigned long buffer_size ,
                                         const int  severity_level_mask  ,
                                         const bool print_time           ,
-                                        const bool print_exe_file       ,       
+                                        const bool print_exe_file       ,
+                                        const bool print_TID            ,
                                         const bool log_to_syslog        );
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
