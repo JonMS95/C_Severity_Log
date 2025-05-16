@@ -13,6 +13,7 @@
 #include <signal.h>
 #include <syslog.h>
 #include <pthread.h> 
+#include <stdint.h>
 #include "SeverityLog_api.h"
 
 /************************************/
@@ -66,6 +67,20 @@
 #define SVRTY_EXE_FILE_FORMAT           "[%s] "
 
 #define SVRTY_TID_FORMAT    "[%#lx] "
+
+#define SVRTY_SET_MASK_LEVEL_MASK       0b11110000
+#define SVRTY_SET_MASK_TIME_MASK        0b00001000
+#define SVRTY_SET_MASK_FILE_NAME_MASK   0b00000100
+#define SVRTY_SET_MASK_TID_MASK         0b00000010
+#define SVRTY_SET_MASK_SYSLOG_MASK      0b00000001
+
+#define SVRTY_SET_MASK_LEVEL_OFFSET     4
+#define SVRTY_SET_MASK_TIME_OFFSET      3
+#define SVRTY_SET_MASK_FILE_NAME_OFFSET 2
+#define SVRTY_SET_MASK_TID_OFFSET       1
+#define SVRTY_SET_MASK_SYSLOG_OFFSET    0
+
+#define SVRTY_GET_MASK_FIELD(VAR_NAME, FIELD_NAME)  ( (VAR_NAME & SVRTY_SET_MASK_##FIELD_NAME##_MASK) >> SVRTY_SET_MASK_##FIELD_NAME##_OFFSET )
 
 #define SVRTY_CLEAN_STR(str)    memset(str, 0, strlen(str))
 
@@ -232,7 +247,7 @@ static void PrintSeverityLevel(const int severity)
 /// @param buffer_size Target payload size (a trailing zero is used to ensure safety).
 /// @return 0 if allocation was successful, < 0 otherwise.
 //////////////////////////////////////////////////////////////////////////////////////
-int SetSeverityLogBufferSize(unsigned long buffer_size)
+int SetSeverityLogBufferSize(size_t buffer_size)
 {
     if(buffer_size <= 0)
         buffer_size = SVRTY_LOG_STR_DEFAULT_SIZE;
@@ -254,7 +269,7 @@ int SetSeverityLogBufferSize(unsigned long buffer_size)
 /// @brief Sets severity log mask to the input value.
 /// @param mask Target severity log mask.
 /////////////////////////////////////////////////////
-void SetSeverityLogMask(const int mask)
+void SetSeverityLogMask(const uint8_t mask)
 {
     severity_log_mask = mask;
 }
@@ -471,20 +486,43 @@ static void SeverityLogSyslog(const int severity, const size_t buffer_len)
     }
 }
 
+/////////////////////////////////////////////////////////////////////
+/// @brief Inits severity Log functionality by using a settings mask.
+/// @param buffer_size Target buffer payload size.
+/// @param init_mask Mask including the following fields:
+///  0b11110000 -> Severity level mask.
+///  0b00001000 -> Print time bit.
+///  0b00000100 -> Print calling exe file name bit.
+///  0b00000010 -> Print calling thread's TID bit.
+///  0b00000001 -> Log to syslog bit.
+/// @return 0 if succeeded, < 0 otherwise.
+/////////////////////////////////////////////////////////////////////
+int SeverityLogInitWithMask(const size_t buffer_size, const uint8_t init_mask)
+{
+    return SeverityLogInit( buffer_size,
+                            (const uint8_t) (SVRTY_GET_MASK_FIELD(init_mask, LEVEL))    ,
+                            (const bool)    (SVRTY_GET_MASK_FIELD(init_mask, TIME))     ,
+                            (const bool)    (SVRTY_GET_MASK_FIELD(init_mask, FILE_NAME)),
+                            (const bool)    (SVRTY_GET_MASK_FIELD(init_mask, TID))      ,
+                            (const bool)    (SVRTY_GET_MASK_FIELD(init_mask, SYSLOG))   );
+}
+
 /////////////////////////////////////////////////////////////
-/// @brief Sets multiple severity log parameters at once.
+/// @brief Inits severity Log functionality.
 /// @param buffer_size Target buffer payload size.
 /// @param severity_level_mask Target severity level(s) mask.
 /// @param print_time Print log's time and date (T/F).
 /// @param print_exe_file Print logging file's name (T/F).
+/// @param print_TID Print logging thread's TID (T/F).
+/// @param log_to_syslog Log to syslog/journal file (T/F).
 /// @return 0 if succeeded, < 0 otherwise.
 /////////////////////////////////////////////////////////////
-int SeverityLogInit(const unsigned long buffer_size ,
-                    const int severity_level_mask   ,
-                    const bool print_time           ,
-                    const bool print_exe_file       ,
-                    const bool print_TID            ,
-                    const bool log_to_syslog        )
+int SeverityLogInit(const size_t buffer_size            ,
+                    const uint8_t severity_level_mask   ,
+                    const bool print_time               ,
+                    const bool print_exe_file           ,
+                    const bool print_TID                ,
+                    const bool log_to_syslog            )
 {
     is_initialized = true;
 
@@ -556,7 +594,7 @@ static void SeverityLogTokenizeCRLF(void)
 /// @param ... Variable number of arguments. Data that is meant to be formatted and printed.
 /// @return < 0 if any error happened, number of characters written to stream otherwise.
 //////////////////////////////////////////////////////////////////////////////////////////////////
-int SeverityLog(const int severity, const char* restrict format, ...)
+int SeverityLog(const uint8_t severity, const char* restrict format, ...)
 {
     if(!is_initialized)
         return SVRTY_LOG_UNINITIALIZED;
