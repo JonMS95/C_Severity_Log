@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.1] - 16-05-2025
 ### Added
 * Logging thread's TID can now be displayed.
+* Added SeverityLogInitWithMask function, which makes severity log initialization function call shorter (less input parameters).
 
 ### Changed
 * Syslog/Journal information contains more details (such as severity level as text and executable file's name) now.
