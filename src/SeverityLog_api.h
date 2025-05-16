@@ -10,6 +10,8 @@ extern "C" {
 /************************************/
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h>
 
 /************************************/
 
@@ -43,13 +45,13 @@ extern "C" {
 /// @param buffer_size Target payload size (a trailing zero is used to ensure safety).
 /// @return 0 if allocation was successful, < 0 otherwise.
 //////////////////////////////////////////////////////////////////////////////////////
-C_SEVERITY_LOG_API int SetSeverityLogBufferSize(unsigned long buffer_size);
+C_SEVERITY_LOG_API int SetSeverityLogBufferSize(size_t buffer_size);
 
 /////////////////////////////////////////////////////
 /// @brief Sets severity log mask to the input value.
 /// @param mask Target severity log mask.
 /////////////////////////////////////////////////////
-C_SEVERITY_LOG_API void SetSeverityLogMask(const int mask);
+C_SEVERITY_LOG_API void SetSeverityLogMask(const uint8_t mask);
 
 ///////////////////////////////////////////////////////////
 /// @brief Set value of print_time_status private variable.
@@ -75,22 +77,35 @@ C_SEVERITY_LOG_API void SetSeverityLogPrintTID(const bool print_TID_status);
 ////////////////////////////////////////////////////////////////////////////////////////////////
 C_SEVERITY_LOG_API void SetSeverityLogSyslogStatus(const bool log_to_syslog_status);
 
+/////////////////////////////////////////////////////////////////////
+/// @brief Inits severity Log functionality by using a settings mask.
+/// @param buffer_size Target buffer payload size.
+/// @param init_mask Mask including the following fields:
+///  0b11110000 -> Severity level mask.
+///  0b00001000 -> Print time bit.
+///  0b00000100 -> Print calling exe file name bit.
+///  0b00000010 -> Print calling thread's TID bit.
+///  0b00000001 -> Log to syslog bit.
+/// @return 0 if succeeded, < 0 otherwise.
+/////////////////////////////////////////////////////////////////////
+C_SEVERITY_LOG_API int SeverityLogInitWithMask(const size_t buffer_size, const uint8_t init_mask);
+
 /////////////////////////////////////////////////////////////
-/// @brief Sets multiple severity log parameters at once.
+/// @brief Inits severity Log functionality.
 /// @param buffer_size Target buffer payload size.
 /// @param severity_level_mask Target severity level(s) mask.
 /// @param print_time Print log's time and date (T/F).
 /// @param print_exe_file Print logging file's name (T/F).
-/// @param log_to_syslog Print to syslog/journal (T/F).
-/// @param print_TID Print thread's TID (T/F).
+/// @param print_TID Print logging thread's TID (T/F).
+/// @param log_to_syslog Log to syslog/journal file (T/F).
 /// @return 0 if succeeded, < 0 otherwise.
 /////////////////////////////////////////////////////////////
-C_SEVERITY_LOG_API int SeverityLogInit( const unsigned long buffer_size ,
-                                        const int  severity_level_mask  ,
-                                        const bool print_time           ,
-                                        const bool print_exe_file       ,
-                                        const bool print_TID            ,
-                                        const bool log_to_syslog        );
+C_SEVERITY_LOG_API int SeverityLogInit( const size_t buffer_size            ,
+                                        const uint8_t severity_level_mask   ,
+                                        const bool print_time               ,
+                                        const bool print_exe_file           ,
+                                        const bool print_TID                ,
+                                        const bool log_to_syslog            );
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Prints a log with different color and initial string depending on the severity level.
@@ -99,7 +114,7 @@ C_SEVERITY_LOG_API int SeverityLogInit( const unsigned long buffer_size ,
 /// @param  Variable Variable number of arguments. Data that is meant to be formatted and printed.
 /// @return < 0 if any error happened, number of characters written to stream otherwise.
 //////////////////////////////////////////////////////////////////////////////////////////////////
-C_SEVERITY_LOG_API int SeverityLog(const int severity, const char* restrict format, ...);
+C_SEVERITY_LOG_API int SeverityLog(const uint8_t severity, const char* restrict format, ...);
 
 #define SVRTY_LOG_ERR(...) SeverityLog(SVRTY_LVL_ERR, __VA_ARGS__)
 #define SVRTY_LOG_INF(...) SeverityLog(SVRTY_LVL_INF, __VA_ARGS__)
