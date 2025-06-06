@@ -107,6 +107,12 @@ C_SEVERITY_LOG_API int SeverityLogInit( const size_t buffer_size            ,
                                         const bool print_TID                ,
                                         const bool log_to_syslog            );
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// @brief Tells whether names used to order libraries should be ignored or not when printing calling file name.
+/// @param ignore_lead_nums Ignore library name's leading numbers (after "lib").
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+C_SEVERITY_LOG_API void SeverityLogIgnoreLeadLibNameNums(bool ignore_lead_nums);
+
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Prints a log with different color and initial string depending on the severity level.
 /// @param severity Severity level (ERR, INF, WNG).

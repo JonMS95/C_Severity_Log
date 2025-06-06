@@ -103,6 +103,7 @@ static          bool    print_time_status                       = false         
 static          bool    print_exe_file_name                     = false                         ;
 static          bool    log_to_syslog                           = false                         ;
 static          bool    log_TID                                 = false                         ;
+static          bool    ignore_leading_lib_nums                 = true                          ;
 
 /***********************************/
 
@@ -392,6 +393,11 @@ static void PrintCallingExeFileName(void)
                 file_name += SVRTY_EXE_FILE_SO_PREFIX_IDX;
         }
 
+        // Remove leading numbers if needed. Although exotic, it may be required if leading numbers were used to specify linking order.
+        if(ignore_leading_lib_nums)
+            while(*file_name >= '0' && *file_name <= '9')
+                ++file_name;
+
         SVRTY_CLEAN_STR(file_name_str);
 
         snprintf(   file_name_str           ,
@@ -540,6 +546,15 @@ int SeverityLogInit(const size_t buffer_size            ,
     SVRTY_LOG_DBG(SVRTY_MSG_INIT);
 
     return SVRTY_LOG_SUCCESS;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// @brief Tells whether names used to order libraries should be ignored or not when printing calling file name.
+/// @param ignore_lead_nums Ignore library name's leading numbers (after "lib").
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void SeverityLogIgnoreLeadLibNameNums(bool ignore_lead_nums)
+{
+    ignore_leading_lib_nums = ignore_lead_nums;
 }
 
 /////////////////////////////////////////////////////////////////////////////
