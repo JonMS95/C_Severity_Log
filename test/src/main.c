@@ -67,8 +67,6 @@ void PrintMultiLineMessage(void)
 
     SVRTY_LOG_INF(TEST_MSG_MULTIPLE_LINES_HEADER);
     SVRTY_LOG_INF(TEST_MSG_MULTIPLE_LINES);
-
-    SetSeverityLogMask(SVRTY_LOG_MASK_OFF);
 }
 
 int main()
