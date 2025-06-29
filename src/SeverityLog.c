@@ -144,9 +144,6 @@ __attribute__((constructor)) static void SeverityLogLoad(void)
 {
     resources_freed = false;
 
-    SignalHandlerAddCallback(SeverityLogHandleSignal, SIG_HDL_ALL_SIGNALS_MASK);
-
-    MTX_GRD_INIT(&log_buff_mtx);
     MTX_GRD_ATTR_INIT_SC(   &log_buff_mtx           ,
                             PTHREAD_MUTEX_RECURSIVE ,
                             PTHREAD_PRIO_INHERIT    ,
@@ -154,6 +151,8 @@ __attribute__((constructor)) static void SeverityLogLoad(void)
                             p_log_buff_mtx_attr     );
 
     MTX_GRD_INIT(&log_buff_mtx);
+
+    SignalHandlerAddCallback(SeverityLogHandleSignal, SIG_HDL_ALL_SIGNALS_MASK);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
