@@ -61,6 +61,8 @@ int PrintAllMessages(int severity_log_mask)
     return test_result;
 }
 
+
+/// @brief Generate a log with multiple files. Outcome should be the same as logging many times.
 void PrintMultiLineMessage(void)
 {
     SetSeverityLogMask(SVRTY_LOG_MASK_ALL);
