@@ -12,8 +12,10 @@
 #include <libgen.h>
 #include <signal.h>
 #include <syslog.h>
-#include <pthread.h> 
+#include <pthread.h>
 #include <stdint.h>
+#include "MutexGuard_api.h"
+#include "SignalHandler_api.h"
 #include "SeverityLog_api.h"
 
 /************************************/
@@ -58,8 +60,8 @@
 #define SVRTY_LOG_WNG_SILENT_LVL    -2
 #define SVRTY_LOG_ALLOCATION_ERR    -3
 
-#define SVRTY_EXE_FILE_STACK_SIZE       3
-#define SVRTY_EXE_FILE_STACK_LVL        2
+#define SVRTY_EXE_FILE_STACK_SIZE       4
+#define SVRTY_EXE_FILE_STACK_LVL        3
 #define SVRTY_EXE_FILE_ADDR_PREFIX      '('
 #define SVRTY_EXE_FILE_SO_SUFFIX        ".so"
 #define SVRTY_EXE_FILE_SO_PREFIX        "lib"
@@ -91,12 +93,14 @@
 /***********************************/
 
 static          bool    is_initialized                          = false                         ;
+static          bool    resources_freed                         = false                         ;
 static __thread char    severity_color_str[SVRTY_CLR_STR_SIZE]  = {0}                           ;
 static __thread char    time_date_str[SVRTY_TIME_DATE_STR_SIZE] = {0}                           ;
 static __thread char    severity_level_str[SVRTY_LVL_STR_SIZE]  = {0}                           ;
 static __thread char    file_name_str[SVRTY_FILE_NAME_STR_SIZE] = {0}                           ;
 static __thread char    logging_TID[SVRTY_LOGGING_TID]          = {0}                           ;
-static __thread char*   log_str_buffer                          = NULL                          ;
+static          char*   log_str_buffer                          = NULL                          ;
+static          MTX_GRD log_buff_mtx                            = {0}                           ;
 static          int     log_str_payload_size                    = SVRTY_LOG_STR_DEFAULT_SIZE + 1;
 static          int     severity_log_mask                       = SVRTY_LOG_MASK_EIW            ;
 static          bool    print_time_status                       = false                         ;
@@ -114,8 +118,8 @@ static          bool    ignore_leading_lib_nums                 = true          
 __attribute__((constructor)) static void SeverityLogLoad(void);
 __attribute__((destructor)) static void SeverityLogUnload(void);
 
+static void SeverityLogCleanup(void);
 static void SeverityLogHandleSignal(const int signal_number);
-static void SeverityLogSetupSignalHandlers(void);
 
 static void ChangeSeverityColor(const int severity);
 static void ResetSeverityColor(void);
@@ -125,7 +129,6 @@ static void PrintCallingExeFileName(void);
 static int  SeverityLogGetSyslogMsgType(const int severity);
 static void SeverityLogSyslog(const int severity, const size_t buffer_len);
 static int  CheckSeverityLogMask(const int severity);
-static void SeverityLogCleanup(void);
 static void SeverityLogTokenizeCRLF();
 
 /*************************************/
@@ -139,7 +142,17 @@ static void SeverityLogTokenizeCRLF();
 /////////////////////////////////////////////////////////////////////////////////////////////// 
 __attribute__((constructor)) static void SeverityLogLoad(void)
 {
-    SeverityLogSetupSignalHandlers();
+    resources_freed = false;
+
+    MTX_GRD_ATTR_INIT_SC(   &log_buff_mtx           ,
+                            PTHREAD_MUTEX_RECURSIVE ,
+                            PTHREAD_PRIO_INHERIT    ,
+                            PTHREAD_PROCESS_PRIVATE ,
+                            p_log_buff_mtx_attr     );
+
+    MTX_GRD_INIT(&log_buff_mtx);
+
+    SignalHandlerAddCallback(SeverityLogHandleSignal, SIG_HDL_ALL_SIGNALS_MASK);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -150,32 +163,45 @@ __attribute__((destructor)) static void SeverityLogUnload(void)
     SeverityLogCleanup();
 }
 
+/////////////////////////////////////////////////////////////////////////////
+/// @brief Performs resources cleanup for current library (frees log buffer).
+/////////////////////////////////////////////////////////////////////////////
+static void SeverityLogCleanup(void)
+{
+    if(resources_freed)
+        return;
+    
+    resources_freed = true;
+
+    MTX_GRD_LOCK(&log_buff_mtx);
+
+    SVRTY_LOG_DBG(SVRTY_MSG_CLEANUP);
+
+    if(log_to_syslog)
+        closelog();
+
+    if(log_str_buffer)
+    {
+        free(log_str_buffer);
+        log_str_buffer = NULL;
+    }
+
+    MTX_GRD_UNLOCK(&log_buff_mtx);
+    MTX_GRD_DESTROY(&log_buff_mtx);
+}
+
 ////////////////////////////////////////////////////////////
 /// @brief Common signal handler. Executed cleanup function.
 /// @param signal_number Target signal number.
 ////////////////////////////////////////////////////////////
 static void SeverityLogHandleSignal(const int signal_number)
 {
-    SVRTY_LOG_WNG(SVRTY_MSG_SIGNAL, strsignal(signal_number));
+    if(resources_freed)
+        return;
+    
+    resources_freed = true;
+
     SeverityLogCleanup();
-}
-
-/////////////////////////////////////////////////////
-/// @brief Sets signal handler for different signals.
-/////////////////////////////////////////////////////
-static void SeverityLogSetupSignalHandlers(void)
-{
-    struct sigaction sa;
-    sa.sa_handler = SeverityLogHandleSignal;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = 0;
-
-    sigaction(SIGINT, &sa, NULL);  // Ctrl+C
-    sigaction(SIGTERM, &sa, NULL); // Termination request
-    sigaction(SIGHUP, &sa, NULL);  // Terminal closed
-    sigaction(SIGQUIT, &sa, NULL); // Ctrl+'\'
-    // sigaction(SIGPIPE, &sa, NULL); // Broken pipe
-    // sigaction(SIGALRM, &sa, NULL); // Timer expiration
 }
 
 /////////////////////////////////////////////////////////////
@@ -250,6 +276,8 @@ static void PrintSeverityLevel(const int severity)
 //////////////////////////////////////////////////////////////////////////////////////
 int SetSeverityLogBufferSize(size_t buffer_size)
 {
+    MTX_GRD_LOCK_SC(&log_buff_mtx, p_log_buff_mtx);
+
     if(buffer_size <= 0)
         buffer_size = SVRTY_LOG_STR_DEFAULT_SIZE;
 
@@ -469,7 +497,6 @@ static void SeverityLogSyslog(const int severity, const size_t buffer_len)
     if(syslog_msg_type < 0)
         return;
 
-    // Second pass: iterate over tokens
     char *ptr   = log_str_buffer;
     char *end   = log_str_buffer + buffer_len;
 
@@ -530,8 +557,6 @@ int SeverityLogInit(const size_t buffer_size            ,
                     const bool print_TID                ,
                     const bool log_to_syslog            )
 {
-    is_initialized = true;
-
     int set_buffer_size = SetSeverityLogBufferSize(buffer_size);
     
     if(set_buffer_size < 0)
@@ -545,6 +570,8 @@ int SeverityLogInit(const size_t buffer_size            ,
 
     SVRTY_LOG_DBG(SVRTY_MSG_INIT);
 
+    is_initialized = true;
+
     return SVRTY_LOG_SUCCESS;
 }
 
@@ -557,22 +584,6 @@ void SeverityLogIgnoreLeadLibNameNums(bool ignore_lead_nums)
     ignore_leading_lib_nums = ignore_lead_nums;
 }
 
-/////////////////////////////////////////////////////////////////////////////
-/// @brief Performs resources cleanup for current library (frees log buffer).
-/////////////////////////////////////////////////////////////////////////////
-static void SeverityLogCleanup(void)
-{
-    if(log_to_syslog)
-        closelog();
-
-    if(!log_str_buffer)
-        return;
-    
-    SVRTY_LOG_DBG(SVRTY_MSG_CLEANUP);
-    free(log_str_buffer);
-    log_str_buffer = NULL;
-}
-
 ///////////////////////////////////////////////////////////////////////
 /// @brief Tokenizes log buffer using "\n" and/or "\r\n" as delimiters.
 ///////////////////////////////////////////////////////////////////////
@@ -580,6 +591,8 @@ static void SeverityLogTokenizeCRLF(void)
 {
     size_t cur_log_str_buffer_len = strlen(log_str_buffer);
     size_t i = 0;
+
+    MTX_GRD_LOCK_SC(&log_buff_mtx, p_log_buff_mtx);
 
     // Replace "\r\n" or "\n" with "\0" or "\0\0" respectively.
     while (i < cur_log_str_buffer_len)
@@ -627,9 +640,6 @@ int SeverityLog(const uint8_t severity, const char* restrict format, ...)
     if(check_severity_log_mask < 0)
         return check_severity_log_mask;
 
-    va_list args;
-    int done;
-
     ChangeSeverityColor(severity);
     PrintTime();
 
@@ -637,11 +647,18 @@ int SeverityLog(const uint8_t severity, const char* restrict format, ...)
     PrintCallingExeFileName();
     PrintTID();
 
+    va_list args;
+    int done;
+
     va_start(args, format);
+    
+    MTX_GRD_LOCK_SC(&log_buff_mtx, p_log_buff_mtx);
+
     done = vsnprintf(   (log_str_buffer + strlen(log_str_buffer))       ,
                         (log_str_payload_size - strlen(log_str_buffer)) ,
                         format                                          ,
                         args                                            );
+    
     va_end(args);
 
     log_str_buffer[strlen(log_str_buffer)] = SVRTY_STR_END;
