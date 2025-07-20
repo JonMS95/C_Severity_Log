@@ -196,11 +196,6 @@ static void SeverityLogCleanup(void)
 ////////////////////////////////////////////////////////////
 static void SeverityLogHandleSignal(const int signal_number)
 {
-    if(resources_freed)
-        return;
-    
-    resources_freed = true;
-
     SeverityLogCleanup();
 }
 
