@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3] - 25-07-2025
+### Fixed
+* Fixed several potential memory allocation errors as well as thread related errors (some of them were only happening when many threads were involved).
+
 ## [2.2] - 06-06-2025
 ### Added
 * Added SeverityLogIgnoreLeadLibNameNums. Used to tell leading library numbers to be ignored when displaying target calling file's name.
