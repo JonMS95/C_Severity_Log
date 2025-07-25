@@ -617,7 +617,7 @@ static void SeverityLogTokenizeCRLF(void)
 /// @param ... Variable number of arguments. Data that is meant to be formatted and printed.
 /// @return < 0 if any error happened, number of characters written to stream otherwise.
 //////////////////////////////////////////////////////////////////////////////////////////////////
-int SeverityLog(const uint8_t severity, const char* restrict format, ...)
+int SeverityLog(const uint8_t severity, const char* C_SEVERITY_LOG_RESTRICT format, ...)
 {
     if(!is_initialized)
         return SVRTY_LOG_UNINITIALIZED;

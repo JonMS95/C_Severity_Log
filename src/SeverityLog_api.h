@@ -21,6 +21,12 @@ extern "C" {
 
 #define C_SEVERITY_LOG_API __attribute__((visibility("default")))
 
+#ifdef __cplusplus
+#define C_SEVERITY_LOG_RESTRICT
+#else
+#define C_SEVERITY_LOG_RESTRICT restrict
+#endif
+
 #define SVRTY_LVL_ERR   1
 #define SVRTY_LVL_INF   2
 #define SVRTY_LVL_WNG   3
@@ -120,7 +126,7 @@ C_SEVERITY_LOG_API void SeverityLogIgnoreLeadLibNameNums(bool ignore_lead_nums);
 /// @param  Variable Variable number of arguments. Data that is meant to be formatted and printed.
 /// @return < 0 if any error happened, number of characters written to stream otherwise.
 //////////////////////////////////////////////////////////////////////////////////////////////////
-C_SEVERITY_LOG_API int SeverityLog(const uint8_t severity, const char* restrict format, ...);
+C_SEVERITY_LOG_API int SeverityLog(const uint8_t severity, const char* C_SEVERITY_LOG_RESTRICT format, ...);
 
 #define SVRTY_LOG_ERR(...) SeverityLog(SVRTY_LVL_ERR, __VA_ARGS__)
 #define SVRTY_LOG_INF(...) SeverityLog(SVRTY_LVL_INF, __VA_ARGS__)
