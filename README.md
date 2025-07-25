@@ -40,12 +40,14 @@ In the following list, the minimum versions required (if any) by the library are
 | [Make][make-link]            | Execute make file                       |4.1             |
 | [Git][git-link]              | Download GitHub dependencies            |2.34.1          |
 | [Xmlstarlet][xmlstarlet-link]| Parse [configuration file](config.xml)  |1.6.1           |
+| [libc][libc-link]            | Manage TLS variables                    |2.35            |
 
 [gcc-link]:        https://gcc.gnu.org/
 [bash-link]:       https://www.gnu.org/software/bash/
 [make-link]:       https://www.gnu.org/software/make/
 [git-link]:        https://git-scm.com/
 [xmlstarlet-link]: https://xmlstar.sourceforge.net/
+[libc-link]:       https://www.gnu.org/software/libc/
 
 Except for Make and Bash, the latest version of each of the remaining dependencies will be installed automatically if they have not been found beforehand.
 
