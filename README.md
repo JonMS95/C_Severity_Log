@@ -182,7 +182,7 @@ An example of CLI usage is provided in the [**Shell_files/test.sh**](https://git
 
 
 ## To do <a id="to-do"></a> ☑️
-- [ ] Fix known bug: format string may include unused formaters without causing any issue, while they should
+- [ ] Fix known bug: format string may include unused formatters without causing any issue, while they should.
 
 
 ## Related Documents <a id="related-documents"></a> 🗄️
